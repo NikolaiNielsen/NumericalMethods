@@ -4,8 +4,8 @@ clc
 
 
 % Shared variables:
-r0 = [1, 0];
-v0 = [0, 1.1];
+r0 = [0, 1];
+v0 = [1.1, 0];
 
 k = 1;
 m = 1;
@@ -44,14 +44,14 @@ Ekin2 = Ekin;
 Epot2 = Epot;
 
 % Stuff for checking angles and only performing one orbit.
-half = 0; % bool flag to check whether the middle has been reached
 theta = t;
 theta(1) = atan2(r0(2),r0(1));
 % Getting the proper value for when the simulation is halfway done
-halfTheta = theta(1)+pi;
+half = theta(1)+pi;
 % Making sure the value is within [-pi,pi] by subtracting 2 pi, if it's
 % over 1 pi.
-halfTheta(halfTheta>pi) = halfTheta(halfTheta>pi)-2*pi;
+half(half>pi) = half(half>pi)-2*pi;
+thetaHalf = zeros(size(theta));
 
 % Starting the simulation
 for i = 2:n
@@ -71,7 +71,34 @@ for i = 2:n
 	Epot2(i) = Ep(r2(i,:));
     
 	theta(i) = atan2(r2(i,2),r2(i,1));
+    thetaHalf(i) = theta(i)-half;
+%     if theta(i) > half
+%        it = i; % Save the iteration number
+%        break 
+%     end
 end
+
+% for i = it:n
+%     
+%     t(i) = t(i-1)+dt; % Not pretty, but it works. I probably should just create this at the start.
+%     
+%     % Euler stuff
+% 	a = dv(r(i-1,:),t(i));
+% 	v(i,:) = v(i-1,:)+a*dt;
+% 	r(i,:) = r(i-1,:)+v(i-1,:)*dt;
+% 	Ekin(i) = Ek(v(i,:));
+% 	Epot(i) = Ep(r(i,:));
+%     
+%     % RK4
+%     v2(i,:) = rk4(v2(i-1,:),r2(i-1,:),t(i),dt,dv);
+% 	r2(i,:) = rk4(r2(i-1,:),v2(i-1,:),t(i),dt,dr);
+% 	Ekin2(i) = Ek(v2(i,:));
+% 	Epot2(i) = Ep(r2(i,:));
+%     
+% 	theta(i) = atan2(r2(i,2),r2(i,1));
+%     
+% end
+
 Etot = Ekin+Epot;
 Etot2 = Ekin2+Epot2;
 
@@ -112,4 +139,9 @@ hold off
 legend('Kinetic energy','potential Energy','Total energy')
 title('RK4 energy')
 
-
+figure
+hold on
+plot([0,tend],[half,half])
+plot(t,theta,'.')
+plot(t,thetaHalf,'.')
+legend('halfway point','theta','theta-halfway point')
