@@ -72,6 +72,8 @@ for i = 2:n
     
 	theta(i) = atan2(r2(i,2),r2(i,1));
     thetaHalf(i) = theta(i)-half;
+    % when thetaHalf == 0, the halfwaypoint is reached. So we'll need a
+    % tolerance. Say 0.1?
 %     if theta(i) > half
 %        it = i; % Save the iteration number
 %        break 
