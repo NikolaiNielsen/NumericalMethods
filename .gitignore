@@ -13,6 +13,8 @@
 !*.m
 !*.tex
 !*.png
+!*.pdf
 
 # And in all subdirectories
 !*/
+*materialer
