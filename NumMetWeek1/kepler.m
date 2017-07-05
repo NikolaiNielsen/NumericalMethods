@@ -3,19 +3,21 @@ close all
 clc
 
 
-r0 = [2, 0];
-v0 = [0, 0.5];
+r0 = [1, 0];
+v0 = [0, 1.1];
 
 k = 1;
 m = 1;
 
+% bool flag to check whether the middle has been reached
+half = 0;
 
 dv = @(r,t) -k*r./sqrt(sum(r.^2))^3;
 dr = @(v,t) v;
 Ek = @(v) m*sum(v.^2)/2;
 Ep = @(r) -k*m./sqrt(sum(r.^2));
 
-tend = 100;
+tend = 10;
 
 dt = 0.001;
 
@@ -31,14 +33,20 @@ v(1,:) = v0;
 t(1) = 0;
 Ekin(1) = Ek(v0);
 Epot(1) = Ep(r0);
+theta = t;
+theta(1) = atan2(r0(2),r0(1));
+
+halfTheta = theta(1)+pi;
+halfTheta(halfTheta>pi) = halfTheta(halfTheta>pi)-2*pi;
 
 for i = 2:n
-	t(i) = t(i-1)+dt; % Not pretty, but it works
+	t(i) = t(i-1)+dt; % Not pretty, but it works. I probably should just create this at the start.
 	a = dv(r(i-1,:),t(i));
 	v(i,:) = v(i-1,:)+a*dt;
 	r(i,:) = r(i-1,:)+v(i-1,:)*dt;
 	Ekin(i) = Ek(v(i,:));
 	Epot(i) = Ep(r(i,:));
+	theta(i) = atan2(r(i,2),r(i,1));
 end
 Etot = Ekin+Epot;
 
@@ -64,17 +72,20 @@ title('Euler Energy')
 
 %% Runge Kutta, 4th order
 
-dv = @(r,t) -k*r./sqrt(sum(r.^2))^3;
-dr = @(v,t) v;
+theta = t;
+theta(1) = atan2(r0(2),r0(1));
 
 for i = 2:n
 	t(i) = t(i-1)+dt;
 	v(i,:) = rk4(v(i-1,:),r(i-1,:),t(i),dt,dv);
 	r(i,:) = rk4(r(i-1,:),v(i-1,:),t(i),dt,dr);
 	Ekin(i) = Ek(v(i,:));
-	Epot(i) = Ep(r(i,:));	
+	Epot(i) = Ep(r(i,:));
+	theta(i) = atan2(r(i,2),r(i,1));
 end
 Etot = Ekin + Epot;
+theta = atan2(r(:,2),r(:,1));
+
 
 figure
 hold on
