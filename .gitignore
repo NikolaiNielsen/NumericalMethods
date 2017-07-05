@@ -1,0 +1,18 @@
+# I'm only interested in the git files and .m files
+
+# Ignores all files
+*
+
+# Excluding git stuff
+!.gitattributes
+!.gitignore
+!readme.md
+!.gitkeep
+
+# And .m files
+!*.m
+!*.tex
+!*.png
+
+# And in all subdirectories
+!*/
