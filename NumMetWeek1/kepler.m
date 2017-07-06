@@ -4,20 +4,21 @@ clc
 
 
 % Shared variables:
-r0 = [0, 1];
-v0 = [1.1, 0];
+r0 = [1, 0];
+v0 = [0, 2*pi];
 
-k = 1;
+k = 4*pi^2;
 m = 1;
 
-
+% Tolerance of angle detection in radians
+angleTol = 0.001;
 
 dv = @(r,t) -k*r./sqrt(sum(r.^2))^3;
 dr = @(v,t) v;
 Ek = @(v) m*sum(v.^2)/2;
 Ep = @(r) -k*m./sqrt(sum(r.^2));
 
-tend = 10;
+tend = 1;
 dt = 0.001;
 n = ceil(tend/dt);
 
@@ -74,32 +75,51 @@ for i = 2:n
     thetaHalf(i) = theta(i)-half;
     % when thetaHalf == 0, the halfwaypoint is reached. So we'll need a
     % tolerance. Say 0.1?
-%     if theta(i) > half
-%        it = i; % Save the iteration number
-%        break 
-%     end
+    if abs(thetaHalf(i)) < 0.1
+        it = i; % Save the iteration number
+        disp('We got it')
+        break
+    end
 end
 
-% for i = it:n
-%     
-%     t(i) = t(i-1)+dt; % Not pretty, but it works. I probably should just create this at the start.
-%     
-%     % Euler stuff
-% 	a = dv(r(i-1,:),t(i));
-% 	v(i,:) = v(i-1,:)+a*dt;
-% 	r(i,:) = r(i-1,:)+v(i-1,:)*dt;
-% 	Ekin(i) = Ek(v(i,:));
-% 	Epot(i) = Ep(r(i,:));
-%     
-%     % RK4
-%     v2(i,:) = rk4(v2(i-1,:),r2(i-1,:),t(i),dt,dv);
-% 	r2(i,:) = rk4(r2(i-1,:),v2(i-1,:),t(i),dt,dr);
-% 	Ekin2(i) = Ek(v2(i,:));
-% 	Epot2(i) = Ep(r2(i,:));
-%     
-% 	theta(i) = atan2(r2(i,2),r2(i,1));
-%     
-% end
+for i = it:n
+    
+    t(i) = t(i-1)+dt; % Not pretty, but it works. I probably should just create this at the start.
+    
+    % Euler stuff
+	a = dv(r(i-1,:),t(i));
+	v(i,:) = v(i-1,:)+a*dt;
+	r(i,:) = r(i-1,:)+v(i-1,:)*dt;
+	Ekin(i) = Ek(v(i,:));
+	Epot(i) = Ep(r(i,:));
+    
+    % RK4
+    v2(i,:) = rk4(v2(i-1,:),r2(i-1,:),t(i),dt,dv);
+	r2(i,:) = rk4(r2(i-1,:),v2(i-1,:),t(i),dt,dr);
+	Ekin2(i) = Ek(v2(i,:));
+	Epot2(i) = Ep(r2(i,:));
+    
+	theta(i) = atan2(r2(i,2),r2(i,1));
+    % Check whether a full orbital period has passed
+    if abs(theta(i)-theta(1)) < angleTol
+        disp('we got it again')
+        break 
+    end
+    
+end
+endindex = i;
+% cut off the indecies that aren't used
+index = 1:endindex;
+r = r(index,:);
+v = v(index,:);
+r2 = r2(index,:);
+v2 = v2(index,:);
+Ekin = Ekin(index);
+Epot = Epot(index);
+Ekin2 = Ekin2(index);
+Epot2 = Epot2(index);
+t = t(index);
+theta = theta(index);
 
 Etot = Ekin+Epot;
 Etot2 = Ekin2+Epot2;
@@ -141,9 +161,9 @@ hold off
 legend('Kinetic energy','potential Energy','Total energy')
 title('RK4 energy')
 
-figure
-hold on
-plot([0,tend],[half,half])
-plot(t,theta,'.')
-plot(t,thetaHalf,'.')
-legend('halfway point','theta','theta-halfway point')
+% figure
+% hold on
+% plot([0,tend],[half,half])
+% plot(t,theta,'.')
+% plot(t,thetaHalf,'.')
+% legend('halfway point','theta','theta-halfway point')
