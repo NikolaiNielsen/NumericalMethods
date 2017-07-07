@@ -92,4 +92,20 @@ title('RK4 Velocities')
 hold off
 
 
+figure
+hold on
+plot(t,Ekin)
+plot(t,Epot)
+plot(t,Etot)
+hold off
+legend('Kinetic','potential','total')
+
+
+figure
+hold on
+plot(t,Ekin2)
+plot(t,Epot2)
+plot(t,Etot2)
+hold off
+legend('Kinetic','potential','total')
 
