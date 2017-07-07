@@ -1,4 +1,4 @@
-function [xout] = rk_1(r,t,dt,df,k)
+function [xout] = rk4(r,t,dt,df,k)
 
 % 4th order Runge Kutta numerical integration,
 
