@@ -1,4 +1,4 @@
-function dxdt = comet(xin, k)
+function dxdt = comet(xin,k)
 
 r = xin(1:2);
 v = xin(3:4);
