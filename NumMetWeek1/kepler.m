@@ -20,7 +20,7 @@ Ep = @(r) -k*m./sqrt(sum(r.^2));
 
 tend = 1;
 
-dts = logspace(-1,-5,50);
+dts = [0.005];
 rerr = zeros(size(dts));
 rerr2 = rerr;
 for j = 1:length(dts)
@@ -61,8 +61,8 @@ for j = 1:length(dts)
 	% Starting the simulation
 	for i = 2:n
 		t(i) = t(i-1)+dt;
-		params(i,:) = params(i-1,:)+dt*comet(params(i-1,:), k);
-		params2(i,:) = rk_1(params2(i-1,:),dt,k);
+		params(i,:) = params(i-1,:)+dt*comet(params(i-1,:),t(i-1),k);
+		params2(i,:) = rk_1(params(i-1,:),t(i-1),dt,'comet',k);
 		Ekin(i) = Ek(params(i,3:4));
 		Ekin2(i) = Ek(params2(i,3:4));
 		Epot(i) = Ep(params(i,1:2));
@@ -83,17 +83,19 @@ for j = 1:length(dts)
 end
 
 %% plotting stuff
-figure
-hold on
-plot(dts,rerr)
-plot(dts,rerr2)
-plot(dts,0.01+0*dts)
-ax = gca;
-ax.XScale = 'log';
-ax.YScale = 'log';
-legend('Euler error','RK4 error','0.01')
-xlabel('$\Delta t$')
-ylabel('error')
+
+
+% figure
+% hold on
+% plot(dts,rerr)
+% plot(dts,rerr2)
+% plot(dts,0.01+0*dts)
+% ax = gca;
+% ax.XScale = 'log';
+% ax.YScale = 'log';
+% legend('Euler error','RK4 error','0.01')
+% xlabel('$\Delta t$')
+% ylabel('error')
 
 
 
@@ -104,16 +106,17 @@ ylabel('error')
 % axis equal
 % title('Euler Orbit')
 % hold off
-% 
-% % figure
-% % hold on
-% % plot(v(:,1),v(:,2),'.')
-% % scatter(0,0,'o')
-% % axis equal
-% % title('Euler Velocities')
-% % hold off
-% 
-% 
+
+
+% figure
+% hold on
+% plot(v(:,1),v(:,2),'.')
+% scatter(0,0,'o')
+% axis equal
+% title('Euler Velocities')
+% hold off
+
+
 % figure
 % hold on
 % plot(r2(:,1),r2(:,2),'.')
@@ -121,16 +124,16 @@ ylabel('error')
 % axis equal
 % title('RK4 Orbit')
 % hold off
-% 
-% % figure
-% % hold on
-% % plot(v2(:,1),v2(:,2),'.')
-% % scatter(0,0,'o')
-% % axis equal
-% % title('RK4 Velocities')
-% % hold off
-% 
-% 
+
+% figure
+% hold on
+% plot(v2(:,1),v2(:,2),'.')
+% scatter(0,0,'o')
+% axis equal
+% title('RK4 Velocities')
+% hold off
+
+
 % figure
 % hold on
 % plot(t,Ekin)
@@ -138,8 +141,8 @@ ylabel('error')
 % plot(t,Etot)
 % hold off
 % legend('Kinetic','potential','total')
-% 
-% 
+
+
 % figure
 % hold on
 % plot(t,Ekin2)
