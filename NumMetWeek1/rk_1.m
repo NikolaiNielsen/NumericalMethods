@@ -1,4 +1,4 @@
-function [xout] = rk_1(r,dt,k)
+function [xout] = rk_1(r,t,dt,df,k)
 
 % 4th order Runge Kutta numerical integration,
 % inputs:
@@ -8,8 +8,8 @@ function [xout] = rk_1(r,dt,k)
 % dt: time step
 % df: anonymous function calculating the differential.
 
-F1 = comet(r,k);
-F2 = comet(r+dt*F1/2,k);
-F3 = comet(r+dt*F2/2,k);
-F4 = comet(r+dt*F3,k);
+F1 = df(r,t,k);
+F2 = df(r+dt*F1/2,t+dt/2,k);
+F3 = df(r+dt*F2/2,t+dt/2,k);
+F4 = df(r+dt*F3,t+dt,k);
 xout = r+dt*(F1+2*F2+2*F3+F4)/6;
