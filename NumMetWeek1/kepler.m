@@ -20,15 +20,11 @@ Ep = @(r) -k*m./sqrt(sum(r.^2));
 
 tend = 1;
 
-dts = [0.005];
-rerr = zeros(size(dts));
-for j = 1:length(dts)
-dt = dts(j);
+dt = 0.001;
 n = ceil(tend/dt);
 
 
-% Non shared. One for Euler, one for RK4:
-% initializing
+% initializing arrays
 params = zeros(n,4); % all parameters go in here, [rx,ry,vx,vy]
 t = zeros(n,1);
 Ekin = t;
@@ -40,24 +36,13 @@ t(1) = 0;
 Ekin(1) = Ek(v0);
 Epot(1) = Ep(r0);
 
-% Copying for RK4
-vF = zeros(n,8);
-rF = zeros(n,8);
-
-% 
-% % Starting the simulation
-% for i = 2:n
-% 	t(i) = t(i-1)+dt; % Not pretty, but it works. I probably should just create this at the start.
-%     
-%     % RK4
-%     [v(i,:), vF(i,1:2),vF(i,3:4),vF(i,5:6),vF(i,7:8)] = rk4(v(i-1,:),r(i-1,:),t(i),dt,dv);
-% 	[r(i,:), rF(i,1:2),rF(i,3:4),rF(i,5:6),rF(i,7:8)] = rk4(r(i-1,:),v(i-1,:),t(i),dt,dr);
-% 	Ekin(i) = Ek(v(i,:));
-% 	Epot(i) = Ep(r(i,:));
-% end
-% rerr(j) = sqrt(sum((r(end,:)-r0).^2))/sqrt(sum(r0.^2));
-% fprintf('run %d done \n',j)
+for i = 2:n
+	t(i) = t(i-1)+dt;
+	params(i,:) = params(i-1,:)+dt*comet(params(i-1,:),k);
 end
+
+r = params(:,1:2);
+v = params(:,3:4);
 
 
 %% plotting stuff
@@ -66,7 +51,7 @@ hold on
 plot(r(:,1),r(:,2),'.')
 scatter(0,0,'o')
 axis equal
-title('RK4 orbit')
+title('Orbit')
 hold off
 
 figure
@@ -74,5 +59,5 @@ hold on
 plot(v(:,1),v(:,2),'.')
 scatter(0,0,'o')
 axis equal
-title('RK4 velocities')
+title('Velocities')
 hold off
