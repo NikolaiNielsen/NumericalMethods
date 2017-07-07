@@ -5,7 +5,7 @@ clc
 
 % Shared variables:
 r0 = [1, 0];
-v0 = [0, 2*pi];
+v0 = [0, pi];
 
 k = 4*pi^2;
 m = 1;
@@ -18,9 +18,9 @@ dr = @(r,t) r(3:4);
 Ek = @(v) m*sum(v.^2)/2;
 Ep = @(r) -k*m./sqrt(sum(r.^2));
 
-tend = 1;
+tend = 10;
 
-dt = 0.005;
+dt = 0.00001;
 n = ceil(tend/dt);
 
 
@@ -82,30 +82,30 @@ axis equal
 title('Euler Orbit')
 hold off
 
-figure
-hold on
-plot(v(:,1),v(:,2),'.')
-scatter(0,0,'o')
-axis equal
-title('Euler Velocities')
-hold off
+% figure
+% hold on
+% plot(v(:,1),v(:,2),'.')
+% scatter(0,0,'o')
+% axis equal
+% title('Euler Velocities')
+% hold off
 
 
 figure
 hold on
-plot(r(:,1),r(:,2),'.')
+plot(r2(:,1),r2(:,2),'.')
 scatter(0,0,'o')
 axis equal
 title('RK4 Orbit')
 hold off
 
-figure
-hold on
-plot(v(:,1),v(:,2),'.')
-scatter(0,0,'o')
-axis equal
-title('RK4 Velocities')
-hold off
+% figure
+% hold on
+% plot(v2(:,1),v2(:,2),'.')
+% scatter(0,0,'o')
+% axis equal
+% title('RK4 Velocities')
+% hold off
 
 
 figure
