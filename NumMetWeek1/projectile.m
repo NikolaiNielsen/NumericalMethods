@@ -1,3 +1,8 @@
+close all
+clear all
+clc
+
+
 r0 = [0;2];
 v0 = 4;
 g = 9.8;
@@ -32,11 +37,24 @@ tplot = t(index);
 t0 = tplot(end);
 
 figure
+subplot(2,1,1)
+title('Projectile motion')
 hold on
 plot(rplot(1,:),rplot(2,:))
 plot(rAnalPlot(1,:),rAnalPlot(2,:))
-plot(rplot(1,:),0*rplot(2,:))
+xlabel('x')
+ylabel('y')
+legend(sprintf('Euler integration, $\\Delta t$ = %.1e',dt),'Analytical solution')
 hold off
+
+res = r-rAnal;
+subplot(2,1,2)
+hold on
+plot(t,sqrt(sum(res.^2)))
+xlabel('t')
+ylabel('$|r-r_a|$')
+hold off
+
 % 
 % res = abs(r-rAnal);
 % 
@@ -93,8 +111,9 @@ hold on
 plot(dts,errplot,'.')
 ax = gca;
 ax.XScale = 'log';
-xlabel('dt')
-ylabel('error')
+ax.YScale = 'log';
+xlabel('$\Delta t$')
+ylabel('Global Error')
 
 %% Air resistance
 
@@ -114,7 +133,7 @@ theta = 45*pi/180;
 tend = t0;
 % dr = @(v) v;
 
-dts = logspace(-1,-10,100);
+dts = logspace(-1,-5,100);
 rf = zeros(size(dts));
 time = rf;
 profile clear
@@ -157,34 +176,58 @@ end
 
 
 %% plot
-load('timedata2.mat')
+load('timedataLarge.mat')
+index = 1:100;
+index = index(rf>0);
+rf = rf(index);
+dts = dts(index);
+time = time(index);
+xlim = [10^-8,0.1];
 
 figure
 subplot(2,1,1)
 ax = gca;
 plot(dts,rf)
+
+xlabel('$\Delta t$ [s]')
+ylabel('$r_f$ [m]')
+ax.XLim = xlim;
+ax.YLim = [1.1,1.45];
 ax.XScale = 'log';
 ax.YScale = 'log';
+title('$r_f$ and simulation time as a function of $\Delta t$')
 
 subplot(2,1,2)
 ax = gca;
 plot(dts,time)
+
+xlabel('$\Delta t$ [s]')
+ylabel('Simulation time [s]')
+ax.XLim = xlim;
+ax.YLim = [10^-3,10^3];
 ax.XScale = 'log';
 ax.YScale = 'log';
+
 
 figure
-
-subplot(2,1,1)
+rftime = rf./time;
+cutoff = 0.1;
+tmp = abs(rftime-(cutoff)*rftime(1));
+[m,i] = min(tmp);
+closest = rftime(i);
+bestTime = dts(i);
 ax = gca;
-plot(dts,(time(end)/rf(end))*rf./time)
+hold on
+plot(dts,rftime)
+plot([dts(1),dts(end)],[cutoff*rftime(1),cutoff*rftime(1)])
+% plot(dts,tmp)
+scatter(bestTime,closest,'o')
 ax.XScale = 'log';
 ax.YScale = 'log';
-
-subplot(2,1,2)
-ax = gca;
-plot(dts,rf./time)
-ax.XScale = 'log';
-ax.YScale = 'log';
+xlabel('$r_f/t$ [m/s]')
+ylabel('$\Delta t$ [s]')
+ax.XLim = xlim;
+title('Ratio between final position and simulation time')
 
 
 

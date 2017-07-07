@@ -28,15 +28,15 @@ t = Na;
 
 t(1) = 0;
 
-taus = [5,10; 1000,1];
-Ns	= [1000,1000; 1000,1000];
+taus = [5,10; 5,5; 3600,5];
+Ns	= [1000,1000; 1000,1000; 1000,1000];
 
 % Euler-integration
 for j = 1:size(taus,1)
 	taua = taus(j,1);
 	taub = taus(j,2);
-	Na(1) = Na0;
-	Nb(1) = Nb0;
+	Na(1) = Ns(j,1);
+	Nb(1) = Ns(j,2);
 	
 	dNa = @(N) -N/taua;
 	dNb = @(N1,N2) N1/taua - N2/taub;
@@ -55,28 +55,32 @@ for j = 1:size(taus,1)
 		NbAnal = Nb0*exp(-t/taub)+Na0/((taua/taub)-1)*(exp(-t/taua)-exp(-t/taub));
 	end
 
-	tit = sprintf('tauA = %.2f, tauB = %.2f',taua,taub);
+	tit = sprintf('$\\tau_A = %d,\\ \\tau_B = %d$',taua,taub);
 
 	% Plotting
 	figure
+    subplot(2,1,1)
 	hold on
 	plot(t,Na,'b')
 	plot(t,Nb,'r')
 	plot(t,NaAnal,'.b')
 	plot(t,NbAnal,'.r')
+    xlabel('Time')
+    ylabel('Particle count')
 	% plot(t,Na+Nb)
 	hold off
 	title(tit)
 	legend('$N_a$','$N_b$','$N_a$ analytic','$N_b$ analytic')
 
 	% Residual
-	figure
+	subplot(2,1,2)
 	hold on
 	plot(t,Na-NaAnal)
 	plot(t,Nb-NbAnal)
 	hold off
-	title(tit)
-	legend('$N_a-N_{a,anal}$','$N_b-N_{b,anal}$')
+    xlabel('Time')
+    ylabel('Particle count')
+	legend('Residual of $N_a$','Residual of $N_b$')
 
 end
 
@@ -137,7 +141,7 @@ for j = 1:size(taus,1)
 % 		NbAnal = Nb0*exp(-t/taub)+Na0/((taua/taub)-1)*(exp(-t/taua)-exp(-t/taub));
 % 	end
 
-	tit = sprintf('tauA = %.2f, tauB = %.2f',taua,taub);
+	tit = sprintf('$\\tau_A = %.2f,\\ \\tau_B = %.2f$',taua,taub);
 
 	% Plotting
 	figure
