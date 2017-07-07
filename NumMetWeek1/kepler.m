@@ -65,6 +65,8 @@ thetaHalf = zeros(size(theta));
 iend = 0;
 iend2 = 0;
 
+params = [r, v];
+
 % Starting the simulation
 for i = 2:n
 	t(i) = t(i-1)+dt; % Not pretty, but it works. I probably should just create this at the start.
@@ -77,8 +79,8 @@ for i = 2:n
 % 	Epot(i) = Ep(r(i,:));
     
     % RK4
-    [v2(i,:), vF(i,1:2),vF(i,3:4),vF(i,5:6),vF(i,7:8)] = rk4(v2(i-1,:),r2(i-1,:),t(i),dt,dv);
-	[r2(i,:), rF(i,1:2),rF(i,3:4),rF(i,5:6),rF(i,7:8)] = rk4(r2(i-1,:),v2(i-1,:),t(i),dt,dr);
+	params(i,:) = rk_1(params(i-1,:),t(i),dt);
+	
 	Ekin2(i) = Ek(v2(i,:));
 	Epot2(i) = Ep(r2(i,:));
 %     
@@ -153,6 +155,8 @@ end
 % rerr = sqrt(sum((r(end,:)-r0).^2))/sqrt(sum(r0.^2));
 % rerr2 = sqrt(sum((r2(end,:)-r0).^2))/sqrt(sum(r0.^2));
 
+r = params(:,1:2);
+v = params(:,3:4);
 
 %% plotting stuff
 % figure
@@ -165,7 +169,7 @@ end
 
 figure
 hold on
-plot(r2(:,1),r2(:,2),'.')
+plot(r(:,1),r(:,2),'.')
 scatter(0,0,'o')
 axis equal
 title('RK4 orbit')
@@ -181,7 +185,7 @@ hold off
 % 
 figure
 hold on
-plot(v2(:,1),v2(:,2),'.')
+plot(v(:,1),v(:,2),'.')
 scatter(0,0,'o')
 axis equal
 title('RK4 velocities')
