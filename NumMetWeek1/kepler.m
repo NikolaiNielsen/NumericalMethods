@@ -4,18 +4,18 @@ clc
 
 % Control variables
 Euler = 0;
-RungeKut = 1;
-ArungeKut = 0;
+RungeKut = 0;
+ArungeKut = 1;
 Aerr = 10^-5; % Desired fractional local truncation error for adaptive runge kutta
 
 plotEuler = 0;
-plotRungeKut = 1;
-plotARungeKut = 0;
+plotRungeKut = 0;
+plotARungeKut = 1;
 plotError = 0;
 
 % Shared variables:
 r0 = [1, 0];
-v0 = [0, 2*pi];
+v0 = [0, 1*pi];
 
 k = 4*pi^2;
 m = 1;
@@ -51,6 +51,9 @@ for j = 1:length(dts)
 	params2 = params;
 	params3 = params;
 	t(1) = 0;
+	t2 = t;
+	t3 = t;
+	dt3 = t;
 	Ekin(1) = Ek(v0);
 	Epot(1) = Ep(r0);
 	Ekin2 = Ekin;
@@ -70,10 +73,6 @@ for j = 1:length(dts)
 	half(half>pi) = half(half>pi)-2*pi;
 	thetaHalf = zeros(size(theta));
 
-
-	iend = 0;
-	iend2 = 0;
-
 	% Starting the simulation
 	if Euler == 1
 		for i = 2:n
@@ -85,13 +84,14 @@ for j = 1:length(dts)
 		Etot = Ekin+Epot;
 		r = params(:,1:2);
 		v = params(:,3:4);
+		theta = atan2(r(:,2),r(:,1));
 		rerr(j) = sqrt(sum((r(end,:)-r0).^2))/sqrt(sum(r0.^2));
 	end
 	
 	
 	if RungeKut == 1
 		for i = 2:n
-			t(i) = t(i-1)+dt;
+			t2(i) = t2(i-1)+dt;
 			params2(i,:) = rk4(params2(i-1,:),t(i-1),dt,'comet',k);
 			Ekin2(i) = Ek(params2(i,3:4));
 			Epot2(i) = Ep(params2(i,1:2));
@@ -99,19 +99,30 @@ for j = 1:length(dts)
 		Etot2 = Ekin2+Epot2;
 		r2 = params2(:,1:2);
 		v2 = params2(:,3:4);
+		theta2 = atan2(r2(:,2),r2(:,1));
 		rerr2(j) = sqrt(sum((r2(end,:)-r0).^2))/sqrt(sum(r0.^2));
+		r2Mag = sqrt(sum(r2.^2,2));
+		semmaj = (min(r2Mag)+max(r2Mag))/2;
+		semmin = sqrt(min(r2Mag)*max(r2Mag));
+		ecc = sqrt(1-semmin^2/semmaj^2);
+		rAnal = (semmaj*(1-ecc^2))./(1-ecc*cos(theta2));
+		rAbsFracErr = abs((r2Mag-rAnal)./rAnal);
 	end
 	
 	
 	if ArungeKut == 1
+		dt3(1) = dt;
 		for i = 2:n
-			[params3(i,:),t(i),dt] = rka(params3(i-1,:),t(i-1),dt,Aerr,'comet',k);
+			[params3(i,:),~,dt3(i)] = rka(params3(i-1,:),t(i-1),dt3(i-1),Aerr,'comet',k);
 			Ekin3(i) = Ek(params3(i,3:4));
 			Epot3(i) = Ep(params3(i,1:2));
+			t3(i) = t3(i-1)+dt3(i);
 		end
 		Etot3 = Ekin3+Epot3;
 		r3 = params3(:,1:2);
 		v3 = params3(:,3:4);
+		r3Mag = sqrt(sum(r3.^2,2));
+		theta3 = atan2(r3(:,2),r3(:,1));
 		rerr3(j) = sqrt(sum((r3(end,:)-r0).^2))/sqrt(sum(r0.^2));
 	end
 
@@ -184,11 +195,29 @@ if plotRungeKut == 1
 
 	figure
 	hold on
-	plot(t,Ekin2)
-	plot(t,Epot2)
-	plot(t,Etot2)
+	plot(t2,Ekin2)
+	plot(t2,Epot2)
+	plot(t2,Etot2)
 	hold off
 	legend('Kinetic','potential','total')
+	
+	figure
+	subplot(2,1,1)
+	title('Orbits')
+	hold on
+	plot(t2,r2Mag)
+	plot(t2,rAnal)
+	hold off
+	legend('RK4 orbit','analytical orbit')
+	xlabel('$t$ [yr]')
+	ylabel('$r$ [AU]')
+	
+	
+	subplot(2,1,2)
+	plot(t2,rAbsFracErr)
+	xlabel('$t$ [yr]')
+	ylabel('AbsFracErr')
+	legend('Absolute Fractional Error')
 end
 
 
@@ -209,11 +238,18 @@ if plotARungeKut == 1
 	% title('aRK4 Velocities')
 	% hold off
 
-	figure
+	f = figure;
 	hold on
-	plot(t,Ekin3)
-	plot(t,Epot3)
-	plot(t,Etot3)
+	plot(t3,Ekin3)
+	plot(t3,Epot3)
+	plot(t3,Etot3)
 	hold off
 	legend('Kinetic','potential','total')
+	
+	figure
+	hold on
+	plot(r3Mag,dt3,'.')
+	hold off
+	xlabel('radius $r$ [AU]')
+	ylabel('$\Delta t$ [AU]')
 end
