@@ -67,7 +67,6 @@ for j = 1:length(dts)
 		Ekin2(i) = Ek(params2(i,3:4));
 		Epot(i) = Ep(params(i,1:2));
 		Epot2(i) = Ep(params2(i,1:2));
-		
 	end
 	Etot = Ekin+Epot;
 	Etot2 = Ekin2+Epot2;
