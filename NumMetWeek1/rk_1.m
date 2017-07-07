@@ -1,12 +1,19 @@
 function [xout] = rk_1(r,t,dt,df,k)
 
 % 4th order Runge Kutta numerical integration,
+
 % inputs:
-% x: quantity to integrate
-% r: input for the differential equation, often times includes x
-% t: the current time
-% dt: time step
-% df: anonymous function calculating the differential.
+%   r		Inputs for differential equations
+%   t		The last time
+%   dt		The time step
+%   df		The name of the function to use for 
+%			the differential equation (as a char
+%			-string)
+%   k		extra parameters for the differential
+%			equation
+%
+% outputs
+%  xout		r for the new time
 
 
 F1 = feval(df,	r,			t,		k);
