@@ -75,7 +75,7 @@ tend = t0;
 
 dr = @(v) v;
 
-dts = logspace(-1,-5,100);
+dts = logspace(-1,-8,100);
 err = zeros(length(dts),2);
 for j = 1:length(dts)
 	
@@ -103,12 +103,24 @@ for j = 1:length(dts)
 	index = r(2,:)>=-0.05;
 	res = abs(r(:,index)-rAnal(:,index));
 	err(j,:) = res(:,end);
+    fprintf('Error Analysis: run %d done\n',j)
 end
+save('projError.mat','dts','err');
 
+
+%%
+load('projError.mat')
 errplot = sqrt(sum(err.^2,2));
+f = fit(log(dts'),log(errplot),'a*x+b');
+errFit = f.b*dts.^(f.a);
+f2 = fit(dts',errplot,'a*x^b');
+errFit2 = f2.a*dts.^(f2.b);
+errFit3 = (f.b+f2.a)/2*dts.^(f2.b);
 figure
 hold on
 plot(dts,errplot,'.')
+% plot(dts,errFit)
+% plot(dts,errFit3)
 ax = gca;
 ax.XScale = 'log';
 ax.YScale = 'log';

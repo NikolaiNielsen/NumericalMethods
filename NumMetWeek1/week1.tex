@@ -110,6 +110,46 @@
 	the absolute residual is also the global truncation error, as defined in the slides for the week 1 lectures. As is expected, the error increases linearly in time, given the linear increase in velocity. This means that the Euler integration underestimates the velocity by a constant amount per time step, leading to a linear increase in global truncation error.
 	
 	
+	Next the effect of the size of the time step $ \Delta t $ is analysed. This is done by creating a vector of logarithmically spaced values for $ \Delta t $, between $ 10^{-1} \e{s} $ and $ 10^{-8} \e{s}$, running the simulation, and recording the global truncation error. If any smaller step size is to be investigated, the simulation as to be broken into pieces, as the size of the arrays exceed the amount of memory available on the desktop workstation used.
+	
+	This could be done by recording the first $ 10^6 $ steps, storing the final results, clearing the arrays from memory and then running the simulation again, with the final results as the new initial conditions, until the full simulation has been completed.
+	
+	However, with the step sizes as mentioned, the final global truncation error becomes
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.7\linewidth]{projError.pdf}
+		\caption{\textbf{INSERT PURDY CAPTION PL0X}}
+		\label{fig:projError}
+	\end{figure}
+	On the double-log plot, the relation between global truncation error and time step size is definitely polynomial, as the graph is that of a straight line. The slope then corresponds to the polynomial degree, and as this is approximately 1 \textbf{REMEMBER CHECKUP}, the relation is taken as being linear.
+	
+	\subsection{With wind resistance}
+	Next a drag force, quadratic in velocity, is introduced to the problem. The formula is
+	\begin{equation}\label{key}
+		\V{F}_d = -\frac{1}{2}C_D \rho A v \V{v}
+ 	\end{equation} 
+ 	where $ C_D $ is the coefficient of drag for the projectile, $ \rho $ is the density of the surrounding media, $ A $ is the cross sectional area of the projectile, and $ v $ is the magnitude of the velocity vector $ \V{v} $. As seen, this is directed opposite to the velocity. The differential equations become:
+ 	\begin{equation}\label{key}
+ 			\diff[\ud]{\V{r}}{t} = \V{v}, \quad \diff[\ud]{\V{v}}{t} = -\frac{1}{2m}C_D \rho A v \V{v} -g\Vy.
+ 	\end{equation}
+ 	where now the second differential equation is no longer linear, owing to the quadratic term in velocity.
+ 	
+ 	With no analytical solution given, other means for estimating the error has to be utilized. As confirmed in the example with no wind resistance, the global truncation error is linearly related to the size of the time step $ \Delta t $. As such, the global truncation error on the simulation with wind resistance will also approach 0 as the size of $ \Delta t $ is decreased. Given this, a method of attaining a desired level of precision is needed.
+ 	
+ 	For the problem at hand, the simulation is run with 100 logarithmically spaced values between $ 10^{-1} \e{s}$ and $ 10^{-8} \e{s} $. The final point of impact is logged, along with the time taken to run the simulation. The results are shown below on semilog and double-log plots respectively:
+ 	\begin{figure}[H]
+ 		\centering
+ 		\includegraphics[width = 0.7\linewidth]{simtime.pdf}
+ 		\caption{\textbf{INSERT PURDY CAPTION PL0X}}
+ 		\label{fig:simtime}
+ 	\end{figure}
+ 	the reason for also recording the simulation time is that while a simulation taking a week to run might be the most precise result achievable, it is not very practical, and might not be that much more precise than that of a simulation that only takes a minute or two. For example, the final simulation, with $ \Delta t = 10^{-8} \e{s} $, took just under 7 minutes. The simulation with the smallest $ \Delta t $, coming within 1\% of the result of the final simulation took just 0.0061 seconds, with a time step size of $ \Delta t = 0.0043 s $. So while the precision is within 1 \% of the final simulation, the run time is almost 5 orders of magnitude smaller. The desired precision can of course be chosen as needed, achieving a precise enough results whilst keeping run time small enough to be practical.
+ 	
+ 	
+ 	\section{Orbits of comets}
+ 	
+ 	
+	
 	
 \end{document}
 
