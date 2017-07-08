@@ -3,19 +3,19 @@ close all
 clc
 
 % Control variables
-Euler = 0;
-RungeKut = 0;
-ArungeKut = 1;
+Euler = 1;
+RungeKut = 1;
+ArungeKut = 0;
 Aerr = 10^-5; % Desired fractional local truncation error for adaptive runge kutta
 
-plotEuler = 0;
-plotRungeKut = 0;
-plotARungeKut = 1;
-plotError = 0;
+plotEuler = 1;
+plotRungeKut = 1;
+plotARungeKut = 0;
+plotError = 1;
 
 % Shared variables:
 r0 = [1, 0];
-v0 = [0, 1*pi];
+v0 = [0, 2*pi];
 
 k = 4*pi^2;
 m = 1;
@@ -30,7 +30,7 @@ Ep = @(r) -k*m./sqrt(sum(r.^2));
 
 tend = 1;
 
-dts = [0.005];
+dts = logspace(-1,-6,60);
 rerr = zeros(size(dts));
 rerr2 = rerr;
 rerr3 = rerr;
@@ -136,14 +136,14 @@ if plotError == 1
 	hold on
 	plot(dts,rerr)
 	plot(dts,rerr2)
-	plot(dts,rerr3)
+% 	plot(dts,rerr3)
 	plot(dts,0.01+0*dts)
 	ax = gca;
 	ax.XScale = 'log';
 	ax.YScale = 'log';
-	legend('Euler error','RK4 error','aRK4 error','0.01')
-	xlabel('$\Delta t$')
-	ylabel('error')
+	legend('Euler error','RK4 error','0.01')
+	xlabel('$\Delta t$ [yr]')
+	ylabel('Fractional error')
 	
 	
 end
@@ -253,3 +253,20 @@ if plotARungeKut == 1
 	xlabel('radius $r$ [AU]')
 	ylabel('$\Delta t$ [AU]')
 end
+
+figure
+polarplot(theta,sqrt(sum(r.^2,2)))
+hold on
+polarplot(theta2,r2Mag)
+legend('Euler orbit','RK4 orbit')
+ax = gca;
+ax.ThetaAxisUnits = 'radians';
+ax.ThetaTick = [0 pi/2 pi 3*pi/2];
+ax.RAxisLocation = 0;
+hold off
+% plot(r(:,1),r(:,2),'.')
+% plot(r2(:,1),r2(:,2),'.')
+% scatter(0,0,'p')
+% legend('Euler orbit','RK4 orbit','Origin','location','eastoutside')
+% xlabel('Distance [AU]')
+% ylabel('Distance [AU]')

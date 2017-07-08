@@ -147,8 +147,35 @@
  	
  	
  	\section{Orbits of comets}
+ 	For this assignment, the trajectory of particles in a gravitational field is calculated both using Euler integration and 4th order Runge-Kutta integration, which uses a weighted average of several derivatives with smaller time steps, to calculate the final value of the next time step. The differential equations for this problem is
+ 	\begin{equation}\label{key}
+ 		\diff[\ud]{\V{r}}{t} = \V{v}, \quad \diff[\ud]{\V{v}}{t} = \frac{GM}{r^2}\U{r} = \frac{GM}{r^3}\V{r},
+ 	\end{equation}
+ 	where, for the purpose of simplicity, $ GM $ is set to $ 4\pi^2 \e{(AU)}^3/\e{(yr)}^3 $. This gives a circular orbit for an initial radius of $ 1 \e{AU} $ and initial tangential velocity of $ 2 \pi \e{AU}/\e{yr} $. Furthermore, the mass of the comet in orbit, is set to unity. 
  	
+ 	\subsection{Euler and RK4}
+ 	First, the two methods are compared for a circular orbit with a step size of $ \Delta t = 0.02 \e{yr} $ and a total simulation time of $ 1 \e{yr} $. The trajectories are shown in the figure below:
  	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.7\linewidth]{CircOrbit.pdf}
+		\caption{\textbf{INSERT PURDY TEXT}}
+		\label{fig:CircOrbit}
+	\end{figure}
+ 	As seen, neither of the simulations actually complete an orbit, however the Runge-Kutta method comes significantly closer. To quantify this, the following fractional error is calculated:
+ 	\begin{equation}\label{key}
+ 		\text{err} = \frac{|\V{r}_f-\V{r}_0|}{|\V{r}_0|}
+ 	\end{equation}
+ 	where $ \V{r}_0 $ is the initial and $ \V{r}_f $ is the final position of the comet. Next, the simulation is run for 60 different values of $ \Delta t $, logarithmically spaced between $ 10^{-1} \e{yr} $ and $ 10^{-6} \e{yr} $:
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.7\linewidth]{KeplerdtErr.pdf}
+		\caption{\textbf{INSERT PURDY TEXT}}
+		\label{fig:KeplerdtErr}
+	\end{figure}
+	As seen from the figure, the Runge-Kutta method consistently outperforms the Euler method in fractional error, though the error in the Runge-Kutta method fluctuates, sometimes over an order of magnitude. Rounded up, the Runge-Kutta needs a $ \Delta t $ of the order $ 10^{-3} \e{yr} $ to have a fractional error lower than 1\%, whilst the Euler method needs one in the order of $ 10^{-5} \e{yr} $, 2 orders of magnitude lower.
+	
+	\subsection{RK4 and the analytical solution}
 	
 	
 \end{document}
