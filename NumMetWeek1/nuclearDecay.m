@@ -48,11 +48,12 @@ for j = 1:size(taus,1)
 	end
 	
 	% Analytical solutions
-	NaAnal = Na0*exp(-t/taua);
+	NaAnal = Na(1)*exp(-t/taua);
 	if taua == taub
-		NbAnal = Nb0*exp(-t/taub)+t*Na0/taua.*exp(-t/taua);
+		NbAnal = Nb(1)*exp(-t/taub)+t*Na(1)/taua.*exp(-t/taua);
 	else
-		NbAnal = Nb0*exp(-t/taub)+Na0/((taua/taub)-1)*(exp(-t/taua)-exp(-t/taub));
+  		NbAnal = Nb(1)*exp(-t/taub)+Na(1)/((taua/taub)-1)*(exp(-t/taua)-exp(-t/taub));
+        NbAnal2 = NaAnal*taub/taua;
 	end
 
 	tit = sprintf('$\\tau_A = %d,\\ \\tau_B = %d$',taua,taub);
@@ -60,27 +61,32 @@ for j = 1:size(taus,1)
 	% Plotting
 	figure
     subplot(2,1,1)
+
 	hold on
 	plot(t,Na,'b')
 	plot(t,Nb,'r')
 	plot(t,NaAnal,'.b')
 	plot(t,NbAnal,'.r')
+%     plot(t,NbAnal2,'.','Color',[0.929 0.694 0.125])
     xlabel('Time')
     ylabel('Particle count')
 	% plot(t,Na+Nb)
 	hold off
 	title(tit)
-	legend('$N_a$','$N_b$','$N_a$ analytic','$N_b$ analytic')
+	legend('$N_A$','$N_B$','$N_A$ analytic','$N_B$ analytic','Steady-state $N_B$')
 
 	% Residual
 	subplot(2,1,2)
 	hold on
-	plot(t,Na-NaAnal)
-	plot(t,Nb-NbAnal)
+	plot(t,(Na-NaAnal))
+	plot(t,(Nb-NbAnal))
+%     plot(t,abs(Nb-NbAnal2))
+%     ax = gca;
+%     ax.YScale = 'log';
 	hold off
     xlabel('Time')
     ylabel('Particle count')
-	legend('Residual of $N_a$','Residual of $N_b$')
+	legend('Residual of $N_A$','Residual of $N_B$','Residual of steady-state $N_B$')
 
 end
 

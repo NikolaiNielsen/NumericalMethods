@@ -44,13 +44,13 @@ plot(rplot(1,:),rplot(2,:))
 plot(rAnalPlot(1,:),rAnalPlot(2,:))
 xlabel('x')
 ylabel('y')
-legend(sprintf('Euler integration, $\\Delta t$ = %.1e',dt),'Analytical solution')
+legend(sprintf('Euler integration, $\\Delta t$ = %.1e',dt),'Analytical solution','Location','southwest')
 hold off
 
 res = r-rAnal;
 subplot(2,1,2)
 hold on
-plot(t,sqrt(sum(res.^2)))
+plot(tplot,sqrt(sum(res(:,index).^2)))
 xlabel('t')
 ylabel('$|r-r_a|$')
 hold off
