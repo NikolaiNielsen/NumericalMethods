@@ -3,16 +3,16 @@ close all
 clc
 
 % Control variables
-Euler = 0;
-RungeKut = 1;
-ArungeKut = 1;
+Euler           = 0;
+RungeKut        = 0;
+ArungeKut       = 0;
 Aerr = 10^-5; % Desired fractional local truncation error for adaptive runge kutta
 
-plotEuler = 0;
-plotRungeKut = 1;
-plotAnal = 0;
-plotARungeKut = 1;
-plotError = 0;
+plotEuler       = 0;
+plotRungeKut    = 0;
+plotAnal        = 0;
+plotARungeKut   = 0;
+plotError       = 0;
 
 % Shared variables:
 r0 = [1, 0];
@@ -224,7 +224,7 @@ if plotRungeKut == 1
         hold off
         legend('$v_0 = 2 \pi$','location','northwest')
         xlabel('$t$ [yr]')
-        ylabel('$r$ [AU]')
+        ylabel('AbsFracErr')
 
 
         subplot(1,2,2)
@@ -407,4 +407,29 @@ if v0(2) == 1*pi && plotRungeKut == 1 && plotARungeKut == 1
     
     print('RK41pi','-dpdf')
     close all
+end
+
+%% more plotting
+if plotARungeKut == 1
+    load('Kepler2piRad')
+    load('Kepler1piRad')
+    f = figure;
+    f.Units = 'centimeter';
+    f.PaperSize = [20 5];
+    f.PaperPositionMode = 'manual';
+    f.PaperPosition = [0 0 20 5.];
+    subplot(1,2,1)
+    hold on
+	plot(r3Mag2pi,dt32pi,'.')
+	hold off
+	xlabel('radius $r$ [AU]')
+	ylabel('$\Delta t$ [AU]')
+    
+    subplot(1,2,2)
+    hold on
+	plot(r3Mag1pi,dt31pi,'.')
+	hold off
+	xlabel('radius $r$ [AU]')
+	ylabel('$\Delta t$ [AU]')
+    print('aRK4DT','-dpdf')
 end
