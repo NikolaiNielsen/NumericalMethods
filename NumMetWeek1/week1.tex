@@ -195,29 +195,35 @@
 	The results, for the two initial conditions are shown in the figures below:
 	\begin{figure}[H]
 		\centering
-%		\includegraphics[width = 0.7\linewidth]{imagefile}
+		\includegraphics[width = \linewidth]{KeplerFracErr.pdf}
 		\caption{\textbf{INSERT PURDY TEXT}}
 		\label{fig:KeplerAnalytical}
 	\end{figure}
 
 	\subsection{Adaptive 4th order Runge-Kutta}
-	For this last exercise, an adaptive version of the 4th order Runge-Kutta method is introduced. This performs the integration three times. Once normally, and then twice in a row, with half the time step size, to get one full integration with the chosen step size. The big step is called $ x_b(t+\Delta t) $ and the result of the small step(s) is called $ x_s(t_+\Delta t) $. If the error, defined as $ |x_b(t+\Delta t)-x_s(t+\Delta t) |$, is smaller than some specified upper bound, the time step size $ \Delta t $ is accepted and increased for the next time step, but if the error is \textit{larger} than the upper bound, the step size is rejected, decreased, and the error is calculated again with the smaller step size.
+	For this last exercise, an adaptive version of the 4th order Runge-Kutta method is introduced. This performs the integration three times. Once normally, and then twice in a row, with half the time step size, to get one full integration with the chosen step size. The big step is called $ x_b(t+\Delta t) $ and the result of the small step(s) is called $ x_s(t_+\Delta t) $. If the error, defined as $ \text{err} = |x_b(t+\Delta t)-x_s(t+\Delta t) |$, is smaller than some specified upper bound, the time step size $ \Delta t $ is accepted and increased for the next time step, but if the error is \textit{larger} than the upper bound, the step size is rejected, decreased, and the error is calculated again with the smaller step size.
 	
 	This allows the simulation to have a starting size for $ \Delta t $, but to increase it when the function is only changing slowly, and decreasing it when the function is changing rapidly. 
 	
 	For the same initial conditions as before, when comparing the analytical and regular Runge-Kutta method, the adaptive and non-adaptive Runge-Kutta methods are compared, by calculating the trajectories and evolution of energy, as a function of time.
 	\begin{figure}[H]
 		\centering
-		%		\includegraphics[width = 0.7\linewidth]{imagefile}
+		\includegraphics[width = \linewidth]{RK42pi.pdf}
 		\caption{\textbf{INSERT PURDY TEXT}}
-		\label{fig:KeplerAdaptive}
+		\label{fig:KeplerAdaptive1}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width = \linewidth]{RK41pi.pdf}
+		\caption{\textbf{INSERT PURDY TEXT}}
+		\label{fig:KeplerAdaptive2}
 	\end{figure}
 	
 	Furthermore to see the adaptiveness in action, the step size $ \Delta t$ is plotted as a function of the radial distance:
 	
 	\begin{figure}[H]
 		\centering
-		%		\includegraphics[width = 0.7\linewidth]{imagefile}
+%		\includegraphics[width = 0.7\linewidth]{imagefile}
 		\caption{\textbf{INSERT PURDY TEXT}}
 		\label{fig:KeplerAdaptiveDT}
 	\end{figure}

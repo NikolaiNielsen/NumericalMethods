@@ -3,19 +3,20 @@ close all
 clc
 
 % Control variables
-Euler = 1;
+Euler = 0;
 RungeKut = 1;
-ArungeKut = 0;
+ArungeKut = 1;
 Aerr = 10^-5; % Desired fractional local truncation error for adaptive runge kutta
 
 plotEuler = 0;
-plotRungeKut = 0;
-plotARungeKut = 0;
-plotError = 1;
+plotRungeKut = 1;
+plotAnal = 0;
+plotARungeKut = 1;
+plotError = 0;
 
 % Shared variables:
 r0 = [1, 0];
-v0 = [0, 2*pi];
+v0 = [0, pi];
 
 k = 4*pi^2;
 m = 1;
@@ -30,7 +31,7 @@ Ep = @(r) -k*m./sqrt(sum(r.^2));
 
 tend = 1;
 
-dts = logspace(-1,-6,60);
+dts = 0.005;
 rerr = zeros(size(dts));
 rerr2 = rerr;
 rerr3 = rerr;
@@ -184,59 +185,75 @@ end
 
 
 if plotRungeKut == 1
-	figure
+	f = figure;
+    f.Units = 'centimeter';
+    f.PaperSize = [15 5];
+    f.PaperPositionMode = 'manual';
+    f.PaperPosition = [0 0 15 5.];
+    
+    axes('Position',[-0.15, 0.1,0.75,0.75],'units','centimeter')
 	hold on
 	plot(r2(:,1),r2(:,2),'.')
 	scatter(0,0,'o')
 	axis equal
 	title('RK4 Orbit')
 	hold off
-
-	% figure
-	% hold on
-	% plot(v2(:,1),v2(:,2),'.')
-	% scatter(0,0,'o')
-	% axis equal
-	% title('RK4 Velocities')
-	% hold off
-
-	figure
-	hold on
+    axes('Position',[0.35,0.75,0.1,0.2])
+    hold on
 	plot(t2,Ekin2)
 	plot(t2,Epot2)
 	plot(t2,Etot2)
+    ax = gca;
+    ax.YTick = [];
 	hold off
-	legend('Kinetic','potential','total')
-	
-	figure
-	subplot(2,1,1)
-	title('Orbits')
-	hold on
-	plot(t2,r2Mag)
-	plot(t2,rAnal)
-	hold off
-	legend('RK4 orbit','analytical orbit')
-	xlabel('$t$ [yr]')
-	ylabel('$r$ [AU]')
-	
-	
-	subplot(2,1,2)
-	plot(t2,rAbsFracErr)
-	xlabel('$t$ [yr]')
-	ylabel('AbsFracErr')
-	legend('Absolute Fractional Error')
+    
+    % 	legend('Kinetic','potential','total')
+    
+    if plotAnal == 1
+        rAbsFracErrPi = rAbsFracErr;
+        load('KeplerFracErr')
+        f = figure;
+        f.Units = 'centimeter';
+        f.PaperSize = [20 5];
+        f.PaperPositionMode = 'manual';
+        f.PaperPosition = [0 0 20 5.];
+        subplot(1,2,1)
+    % 	title('Orbits')
+        hold on
+        plot(t2,rAbsFracErr)
+        hold off
+        legend('$v_0 = 2 \pi$','location','northwest')
+        xlabel('$t$ [yr]')
+        ylabel('$r$ [AU]')
+
+
+        subplot(1,2,2)
+        plot(t2,rAbsFracErrPi)
+        xlabel('$t$ [yr]')
+        ylabel('AbsFracErr')
+        legend('$v_0 = \pi$','location','northwest')
+        print('KeplerFracErr','-dpdf')
+    end
 end
 
 
 if plotARungeKut == 1
-	figure
+    axes('Position',[0.375, 0.1,0.75,0.75])
 	hold on
 	plot(r3(:,1),r3(:,2),'.')
 	scatter(0,0,'o')
 	axis equal
 	title('aRK4 Orbit')
 	hold off
-
+    axes('Position',[0.875,0.75,0.1,0.2])
+    hold on
+	plot(t3,Ekin3)
+	plot(t3,Epot3)
+	plot(t3,Etot3)
+    ax = gca;
+    ax.YTick = [];
+    ax.XLim = [0,6];
+	hold off
 	% figure
 	% hold on
 	% plot(v3(:,1),v3(:,2),'.')
@@ -245,20 +262,20 @@ if plotARungeKut == 1
 	% title('aRK4 Velocities')
 	% hold off
 
-	f = figure;
-	hold on
-	plot(t3,Ekin3)
-	plot(t3,Epot3)
-	plot(t3,Etot3)
-	hold off
-	legend('Kinetic','potential','total')
-	
-	figure
-	hold on
-	plot(r3Mag,dt3,'.')
-	hold off
-	xlabel('radius $r$ [AU]')
-	ylabel('$\Delta t$ [AU]')
+% 	f = figure;
+% 	hold on
+% 	plot(t3,Ekin3)
+% 	plot(t3,Epot3)
+% 	plot(t3,Etot3)
+% 	hold off
+% 	legend('Kinetic','potential','total')
+% 	
+% 	figure
+% 	hold on
+% 	plot(r3Mag,dt3,'.')
+% 	hold off
+% 	xlabel('radius $r$ [AU]')
+% 	ylabel('$\Delta t$ [AU]')
 end
 
 % f = figure;
@@ -283,3 +300,111 @@ end
 % legend('Euler orbit','RK4 orbit','Origin','location','eastoutside')
 % xlabel('Distance [AU]')
 % ylabel('Distance [AU]')
+
+if v0(2) == 2*pi && plotRungeKut == 1 && plotARungeKut == 1
+    f = figure;
+    f.Units = 'centimeter';
+    f.PaperSize = [15 5];
+    f.PaperPositionMode = 'manual';
+    f.PaperPosition = [0 0 15 5.];
+    
+    axes('Position',[-0.07, 0.225,0.6,0.6])
+	hold on
+	plot(r2(:,1),r2(:,2),'.')
+	scatter(0,0,'o')
+	axis equal
+	title('RK4 Orbit')
+    xlabel('$x$ [AU]')
+    ylabel('$y$ [AU]')
+	hold off
+    
+    axes('Position',[0.35,0.75,0.1,0.2])
+    hold on
+	plot(t2,Ekin2)
+	plot(t2,Epot2)
+	plot(t2,Etot2)
+    ax = gca;
+    ax.YTick = [];
+    xlabel('$t$ [yr]')
+	hold off
+    
+    
+    axes('Position',[0.45, 0.225,0.6,0.6])
+	hold on
+	plot(r3(:,1),r3(:,2),'.')
+	scatter(0,0,'o')
+	axis equal
+	title('aRK4 Orbit')
+    xlabel('$x$ [AU]')
+    ylabel('$y$ [AU]')
+	hold off
+    
+    
+    axes('Position',[0.875,0.75,0.1,0.2])
+    hold on
+	plot(t3,Ekin3)
+	plot(t3,Epot3)
+	plot(t3,Etot3)
+    ax = gca;
+    ax.YTick = [];
+    ax.XLim = [0,6];
+    xlabel('$t$ [yr]')
+	hold off
+    
+    print('RK42pi','-dpdf')
+    close all
+end
+
+
+if v0(2) == 1*pi && plotRungeKut == 1 && plotARungeKut == 1
+    f = figure;
+    f.Units = 'centimeter';
+    f.PaperSize = [15 5];
+    f.PaperPositionMode = 'manual';
+    f.PaperPosition = [0 0 15 5.];
+    
+    axes('Position',[-0.07,0.225,0.6,0.6])
+	hold on
+	plot(r2(:,1),r2(:,2),'.')
+	scatter(0,0,'o')
+	axis equal
+	title('RK4 Orbit')
+    xlabel('$x$ [AU]')
+    ylabel('$y$ [AU]')
+	hold off
+    
+    
+    axes('Position',[0.37,0.75,0.1,0.2])
+    hold on
+	plot(t2,Ekin2)
+	plot(t2,Epot2)
+	plot(t2,Etot2)
+    ax = gca;
+    ax.YTick = [];
+    xlabel('$t$ [yr]')
+	hold off
+    
+    axes('Position',[0.43, 0.225,0.6,0.6])
+	hold on
+	plot(r3(:,1),r3(:,2),'.')
+	scatter(0,0,'o')
+	axis equal
+	title('aRK4 Orbit')
+    xlabel('$x$ [AU]')
+    ylabel('$y$ [AU]')
+	hold off
+    
+    
+    axes('Position',[0.875,0.75,0.1,0.2])
+    hold on
+	plot(t3,Ekin3)
+	plot(t3,Epot3)
+	plot(t3,Etot3)
+    ax = gca;
+    ax.YTick = [];
+    xlabel('$t$ [yr]')
+	hold off
+    
+    print('RK41pi','-dpdf')
+    close all
+end
