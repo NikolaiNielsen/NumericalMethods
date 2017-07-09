@@ -36,24 +36,32 @@ rAnalPlot = rAnal(:,index);
 tplot = t(index);
 t0 = tplot(end);
 
-figure
-subplot(2,1,1)
-title('Projectile motion')
+f = figure;
+f.Units = 'centimeter';
+f.PaperSize = [20 5];
+f.PaperPositionMode = 'manual';
+f.PaperPosition = [0 0 20 5];
+
+subplot(1,2,1)
+% title('Projectile motion')
 hold on
 plot(rplot(1,:),rplot(2,:))
 plot(rAnalPlot(1,:),rAnalPlot(2,:))
-xlabel('x')
-ylabel('y')
-legend(sprintf('Euler integration, $\\Delta t$ = %.1e',dt),'Analytical solution','Location','southwest')
+xlabel('$x$ [m]')
+ylabel('$y$ [m]')
+legend('Euler','Analytical','Location','southwest')
 hold off
 
 res = r-rAnal;
-subplot(2,1,2)
+subplot(1,2,2)
+% title('Cummulative Error')
 hold on
 plot(tplot,sqrt(sum(res(:,index).^2)))
-xlabel('t')
-ylabel('$|r-r_a|$')
+xlabel('$t$ [s]')
+ylabel('$|r-r_a|$ [m]')
 hold off
+
+print('projectile','-dpdf')
 
 % 
 % res = abs(r-rAnal);
@@ -116,7 +124,12 @@ errFit = f.b*dts.^(f.a);
 f2 = fit(dts',errplot,'a*x^b');
 errFit2 = f2.a*dts.^(f2.b);
 errFit3 = (f.b+f2.a)/2*dts.^(f2.b);
-figure
+
+f = figure;
+f.Units = 'centimeter';
+f.PaperSize = [10 5];
+f.PaperPositionMode = 'manual';
+f.PaperPosition = [0 0 10 5];
 hold on
 plot(dts,errplot,'.')
 % plot(dts,errFit)
@@ -124,8 +137,9 @@ plot(dts,errplot,'.')
 ax = gca;
 ax.XScale = 'log';
 ax.YScale = 'log';
-xlabel('$\Delta t$')
-ylabel('Global Error')
+xlabel('$\Delta t$ [s]')
+ylabel('Global Error [m]')
+print('projError','-dpdf')
 
 %% Air resistance
 
@@ -196,8 +210,13 @@ dts = dts(index);
 time = time(index);
 xlim = [10^-8,0.1];
 
-figure
-subplot(2,1,1)
+f = figure; 
+f.Units = 'centimeter';
+f.PaperSize = [20 5];
+f.PaperPositionMode = 'manual';
+f.PaperPosition = [0 0 20 5];
+
+subplot(1,2,1)
 ax = gca;
 plot(dts,rf)
 
@@ -207,9 +226,9 @@ ax.XLim = xlim;
 ax.YLim = [1.1,1.45];
 ax.XScale = 'log';
 ax.YScale = 'log';
-title('$r_f$ and simulation time as a function of $\Delta t$')
+% title('$r_f$ and simulation time as a function of $\Delta t$')
 
-subplot(2,1,2)
+subplot(1,2,2)
 ax = gca;
 plot(dts,time)
 
@@ -219,7 +238,7 @@ ax.XLim = xlim;
 ax.YLim = [10^-3,10^3];
 ax.XScale = 'log';
 ax.YScale = 'log';
-
+print('simtime','-dpdf')
 
 figure
 rftime = rf./time;

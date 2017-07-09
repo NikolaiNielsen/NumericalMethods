@@ -8,8 +8,8 @@ RungeKut = 1;
 ArungeKut = 0;
 Aerr = 10^-5; % Desired fractional local truncation error for adaptive runge kutta
 
-plotEuler = 1;
-plotRungeKut = 1;
+plotEuler = 0;
+plotRungeKut = 0;
 plotARungeKut = 0;
 plotError = 1;
 
@@ -132,7 +132,12 @@ end
 %% plotting stuff
 
 if plotError == 1
-	figure
+    load('KeplerErr')
+	f = figure;
+    f.Units = 'centimeter';
+    f.PaperSize = [12 4];
+    f.PaperPositionMode = 'manual';
+    f.PaperPosition = [0 0 12 4];
 	hold on
 	plot(dts,rerr)
 	plot(dts,rerr2)
@@ -141,10 +146,12 @@ if plotError == 1
 	ax = gca;
 	ax.XScale = 'log';
 	ax.YScale = 'log';
-	legend('Euler error','RK4 error','0.01')
+    ax.YLim = [10^-10,10^1];
+    ax.XLim = [10^-6,10^-1];
+	legend('Euler error','RK4 error','0.01','location','eastoutside')
 	xlabel('$\Delta t$ [yr]')
 	ylabel('Fractional error')
-	
+	print('KeplerdtErr','-dpdf')
 	
 end
 
@@ -254,16 +261,22 @@ if plotARungeKut == 1
 	ylabel('$\Delta t$ [AU]')
 end
 
-figure
-polarplot(theta,sqrt(sum(r.^2,2)))
-hold on
-polarplot(theta2,r2Mag)
-legend('Euler orbit','RK4 orbit')
-ax = gca;
-ax.ThetaAxisUnits = 'radians';
-ax.ThetaTick = [0 pi/2 pi 3*pi/2];
-ax.RAxisLocation = 0;
-hold off
+% f = figure;
+% f.Units = 'centimeter';
+% f.PaperSize = [10 5];
+% f.PaperPositionMode = 'manual';
+% f.PaperPosition = [0 0 10 5.];
+% 
+% polarplot(theta,sqrt(sum(r.^2,2)))
+% hold on
+% polarplot(theta2,r2Mag)
+% legend('Euler orbit','RK4 orbit')
+% ax = gca;
+% ax.ThetaAxisUnits = 'radians';
+% ax.ThetaTick = [0 pi/2 pi 3*pi/2];
+% ax.RAxisLocation = 0;
+% hold off
+% print('CircOrbit','-dpdf')
 % plot(r(:,1),r(:,2),'.')
 % plot(r2(:,1),r2(:,2),'.')
 % scatter(0,0,'p')

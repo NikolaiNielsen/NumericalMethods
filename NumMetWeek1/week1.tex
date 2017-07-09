@@ -30,14 +30,14 @@
 
 %Titel
 \title{Numerical Methods in Physics Week 1}
-\author{Nikolai Plambech Nielsen, LPK331. Version 1.0}
-\date{\today}
+\author{Nikolai Plambech Nielsen}
+\date{}
 
 \begin{document}
 	\maketitle
 	\section{Nuclear Decay}
-	We have two radioactive isotopes, A and B, with populations $ N_A(t) $ and $ N_B(t) $, and decay times $ \tau_A $  and $ \tau_B $. Type A decays into type B, while B decays into something else we don't track. The relevant differential equations are
-	\begin{equation}\label{key}
+	Suppose  two radioactive isotopes, A and B, are present with populations $ N_A(t) $ and $ N_B(t) $, and decay times $ \tau_A $  and $ \tau_B $. Type A decays into type B, while B decays into something not tracked. The relevant differential equations are
+	\begin{equation}
 		\diff[\ud]{N_A}{t} = - \frac{N_A}{\tau_A}, \quad \diff[\ud]{N_B}{t} = \frac{N_A}{\tau_A} - \frac{N_B}{\tau_B}.
 	\end{equation}
 	The purpose of this assignment is to solve this problem numerically for a number of different conditions, using Euler integration. This method is used for its simplicity and ease of implementation. For all of the following simulations and plots, the values $ \Delta t = 0.1 $ is used.
@@ -54,7 +54,7 @@
 	The results, along with residual plots, for $ N_A(0) = N_B(0) = 1000 $ and $ \tau_A = 5, \tau_B = 10 $ are shown below, with the analytical solution for $ \tau_A \neq \tau_B $:
 	\begin{figure}[H]
 		\centering
-		\includegraphics[width=0.7\linewidth]{unequaltau.pdf}
+		\includegraphics[width=\linewidth]{unequaltau.pdf}
 		\caption{\textbf{INSERT PURDY CAPTION PL0X}}
 		\label{fig:unequalTau}
 	\end{figure}
@@ -62,7 +62,7 @@
 	To demonstrate the solution for $ \tau_A = \tau_B $, the initial conditions of $ N_A=N_B = 1000 $ and $ \tau_A=\tau_B = 10 $ are shown below. Again with accompanying residual plots:
 	\begin{figure}[H]
 		\centering
-		\includegraphics[width=0.7\linewidth]{equaltau.pdf}
+		\includegraphics[width=\linewidth]{equaltau.pdf}
 		\caption{\textbf{INSERT PURDY CAPTION PL0X}}
 		\label{fig:equalTau}
 	\end{figure}
@@ -75,7 +75,7 @@
 	This is also seen in a simulation, where $ \tau_A = 3600,\tau_B = 5 $:
 	\begin{figure}[H]
 		\centering
-		\includegraphics[width=0.7\linewidth]{largetau.pdf}
+		\includegraphics[width=\linewidth]{largetau.pdf}
 		\caption{\textbf{INSERT PURDY CAPTION PL0X}}
 		\label{fig:largeTau}
 	\end{figure}
@@ -86,11 +86,11 @@
 	For this assignment, projectile motion is to be simulated, again using the Euler-method. This gives another example of how to use this simple method of simulation, for a problem which (without wind resistance) has an analytical solution. After this, uncharted waters are encountered, when wind resistance is included. Here no analytical solution is given, and all reliance upon the previous methods, like residuals between the numerical and analytical solutions, are not applicable.
 	
 	Furthermore, for this problem, a second derivative is used, whereby a second Euler integration is needed, to complete the time step. The relevant differential equations are
-	\begin{equation}\label{key}
+	\begin{equation}
 		\diff[\ud]{\V{r}}{t} = \V{v}, \quad \diff[\ud]{\V{v}}{t} = -g\Vy.
 	\end{equation}
 	where the analytical solution is computed by integrating the second equation twice, and using the relevant initial conditions:
-	\begin{equation}\label{key}
+	\begin{equation}
 		\V{r}(t) = \begin{pmatrix}
 		x(t) \\ y(t)
 		\end{pmatrix} = \begin{pmatrix}
@@ -103,7 +103,7 @@
 	The numerical and analytical solutions to projectile motion, given the initial conditions of $ x_0 = 0,y_0 = 2 \e{m},v_0 = 4 \e{m/s}$ and $ \theta = 70\degree$, where $ v_{x,0} = v_0 \cos \theta $ and $ v_{y,0} = v_0 \sin \theta $. For the numerical solution a value of $ \Delta t = 0.01 \e{s}$ is used. The results are shown below, along with the absolute residual, as a function of time:
 	\begin{figure}[H]
 		\centering
-		\includegraphics[width=0.7\linewidth]{projectile.pdf}
+		\includegraphics[width=\linewidth]{projectile.pdf}
 		\caption{\textbf{INSERT PURDY CAPTION PL0X}}
 		\label{fig:projectile}
 	\end{figure}
@@ -112,12 +112,12 @@
 	
 	Next the effect of the size of the time step $ \Delta t $ is analysed. This is done by creating a vector of logarithmically spaced values for $ \Delta t $, between $ 10^{-1} \e{s} $ and $ 10^{-8} \e{s}$, running the simulation, and recording the global truncation error. If any smaller step size is to be investigated, the simulation as to be broken into pieces, as the size of the arrays exceed the amount of memory available on the desktop workstation used.
 	
-	This could be done by recording the first $ 10^6 $ steps, storing the final results, clearing the arrays from memory and then running the simulation again, with the final results as the new initial conditions, until the full simulation has been completed.
+	This could be done by recording the first, say, $ 10^6 $ steps, storing the final results, clearing the arrays from memory and then running the simulation again, with the final results as the new initial conditions, until the full simulation has been completed.
 	
 	However, with the step sizes as mentioned, the final global truncation error becomes
 	\begin{figure}[H]
 		\centering
-		\includegraphics[width=0.7\linewidth]{projError.pdf}
+		\includegraphics[width=0.5\linewidth]{projError.pdf}
 		\caption{\textbf{INSERT PURDY CAPTION PL0X}}
 		\label{fig:projError}
 	\end{figure}
@@ -125,11 +125,11 @@
 	
 	\subsection{With wind resistance}
 	Next a drag force, quadratic in velocity, is introduced to the problem. The formula is
-	\begin{equation}\label{key}
+	\begin{equation}
 		\V{F}_d = -\frac{1}{2}C_D \rho A v \V{v}
  	\end{equation} 
  	where $ C_D $ is the coefficient of drag for the projectile, $ \rho $ is the density of the surrounding media, $ A $ is the cross sectional area of the projectile, and $ v $ is the magnitude of the velocity vector $ \V{v} $. As seen, this is directed opposite to the velocity. The differential equations become:
- 	\begin{equation}\label{key}
+ 	\begin{equation}
  			\diff[\ud]{\V{r}}{t} = \V{v}, \quad \diff[\ud]{\V{v}}{t} = -\frac{1}{2m}C_D \rho A v \V{v} -g\Vy.
  	\end{equation}
  	where now the second differential equation is no longer linear, owing to the quadratic term in velocity.
@@ -139,7 +139,7 @@
  	For the problem at hand, the simulation is run with 100 logarithmically spaced values between $ 10^{-1} \e{s}$ and $ 10^{-8} \e{s} $. The final point of impact is logged, along with the time taken to run the simulation. The results are shown below on semilog and double-log plots respectively:
  	\begin{figure}[H]
  		\centering
- 		\includegraphics[width = 0.7\linewidth]{simtime.pdf}
+ 		\includegraphics[width = \linewidth]{simtime.pdf}
  		\caption{\textbf{INSERT PURDY CAPTION PL0X}}
  		\label{fig:simtime}
  	\end{figure}
@@ -148,7 +148,7 @@
  	
  	\section{Orbits of comets}
  	For this assignment, the trajectory of particles in a gravitational field is calculated both using Euler integration and 4th order Runge-Kutta integration, which uses a weighted average of several derivatives with smaller time steps, to calculate the final value of the next time step. The differential equations for this problem is
- 	\begin{equation}\label{key}
+ 	\begin{equation}
  		\diff[\ud]{\V{r}}{t} = \V{v}, \quad \diff[\ud]{\V{v}}{t} = \frac{GM}{r^2}\U{r} = \frac{GM}{r^3}\V{r},
  	\end{equation}
  	where, for the purpose of simplicity, $ GM $ is set to $ 4\pi^2 \e{(AU)}^3/\e{(yr)}^3 $. This gives a circular orbit for an initial radius of $ 1 \e{AU} $ and initial tangential velocity of $ 2 \pi \e{AU}/\e{yr} $. Furthermore, the mass of the comet in orbit, is set to unity. 
@@ -163,19 +163,64 @@
 		\label{fig:CircOrbit}
 	\end{figure}
  	As seen, neither of the simulations actually complete an orbit, however the Runge-Kutta method comes significantly closer. To quantify this, the following fractional error is calculated:
- 	\begin{equation}\label{key}
+ 	\begin{equation}
  		\text{err} = \frac{|\V{r}_f-\V{r}_0|}{|\V{r}_0|}
  	\end{equation}
  	where $ \V{r}_0 $ is the initial and $ \V{r}_f $ is the final position of the comet. Next, the simulation is run for 60 different values of $ \Delta t $, logarithmically spaced between $ 10^{-1} \e{yr} $ and $ 10^{-6} \e{yr} $:
 	\begin{figure}[H]
 		\centering
-		\includegraphics[width=0.7\linewidth]{KeplerdtErr.pdf}
+		\includegraphics[width=0.8\linewidth]{KeplerdtErr.pdf}
 		\caption{\textbf{INSERT PURDY TEXT}}
 		\label{fig:KeplerdtErr}
 	\end{figure}
 	As seen from the figure, the Runge-Kutta method consistently outperforms the Euler method in fractional error, though the error in the Runge-Kutta method fluctuates, sometimes over an order of magnitude. Rounded up, the Runge-Kutta needs a $ \Delta t $ of the order $ 10^{-3} \e{yr} $ to have a fractional error lower than 1\%, whilst the Euler method needs one in the order of $ 10^{-5} \e{yr} $, 2 orders of magnitude lower.
 	
 	\subsection{RK4 and the analytical solution}
+	For this problem, the analytical solution is also known, and the radius, as a function of the angle $ \theta $, is given by
+	\begin{equation}
+		r(\theta) = \frac{a(1-\epsilon^2)}{1-\epsilon \cos \theta}
+	\end{equation}
+	where $ \epsilon = \sqrt{1-b^2/a^2}$ is the eccentricity of the orbit, $ a $ is the semimajor axis and $ b $ is the semiminor axis of the orbit. The semimajor and semiminor axes are given respectivle by the arithmetic and geometric mean of the largest and smallest radius:
+	\begin{equation}
+		a = \frac{r_{\text{max}}+r_{\text{min}}}{2}, \quad b = \sqrt{r_{\text{max}r_{\text{min}}}}.
+	\end{equation}
+	Next the RK4 method is compared to the analytical solution. The smallest and largest radii of the orbit are calculated after the full simulation has run, and the magnitude of the radius is calculated at each point along the orbit. To compare the two solutions, two initial conditions are chosen: both starting at a radial distance of $ 1 \e{AU} $, with initial tangential velocity of $ \pi \e{AU/yr} $ and $ 2 \pi \e{AU/yr} $. Both simulations are run with a step size of $ \Delta t  = 0.005 \e{yr} $.
+	
+	The simulation uses cartesian coordinates, so to retrieve the angle used in the analytical solution the function \texttt{atan2} is used. This is different to the normal arctangent function in that \texttt{atan2} takes two inputs, $ y $ and $ x $, whereas the normal arctangent only takes one $ v = y/x $. The normal arctangent function is only defined for angles between $ -\pi/2 $ and $ \pi/2 $ radians, so in the right half-plane. But the \texttt{atan2} function works for all angles between $ 0 $ and $ 2\pi $ radians, and as such is the one needed for this problem.
+	
+	With the angle, semimajor and semiminor axes calculated, the analytical solution can be computed. The numerical solution is then compared by computing the absolute fractional error across the entire period of an orbit:
+	\begin{equation}
+		\text{err} = \vv{\frac{r_{\text{numerical}}-r_{\text{analytical}}}{r_{\text{analytical}}}}
+	\end{equation}
+	The results, for the two initial conditions are shown in the figures below:
+	\begin{figure}[H]
+		\centering
+%		\includegraphics[width = 0.7\linewidth]{imagefile}
+		\caption{\textbf{INSERT PURDY TEXT}}
+		\label{fig:KeplerAnalytical}
+	\end{figure}
+
+	\subsection{Adaptive 4th order Runge-Kutta}
+	For this last exercise, an adaptive version of the 4th order Runge-Kutta method is introduced. This performs the integration three times. Once normally, and then twice in a row, with half the time step size, to get one full integration with the chosen step size. The big step is called $ x_b(t+\Delta t) $ and the result of the small step(s) is called $ x_s(t_+\Delta t) $. If the error, defined as $ |x_b(t+\Delta t)-x_s(t+\Delta t) |$, is smaller than some specified upper bound, the time step size $ \Delta t $ is accepted and increased for the next time step, but if the error is \textit{larger} than the upper bound, the step size is rejected, decreased, and the error is calculated again with the smaller step size.
+	
+	This allows the simulation to have a starting size for $ \Delta t $, but to increase it when the function is only changing slowly, and decreasing it when the function is changing rapidly. 
+	
+	For the same initial conditions as before, when comparing the analytical and regular Runge-Kutta method, the adaptive and non-adaptive Runge-Kutta methods are compared, by calculating the trajectories and evolution of energy, as a function of time.
+	\begin{figure}[H]
+		\centering
+		%		\includegraphics[width = 0.7\linewidth]{imagefile}
+		\caption{\textbf{INSERT PURDY TEXT}}
+		\label{fig:KeplerAdaptive}
+	\end{figure}
+	
+	Furthermore to see the adaptiveness in action, the step size $ \Delta t$ is plotted as a function of the radial distance:
+	
+	\begin{figure}[H]
+		\centering
+		%		\includegraphics[width = 0.7\linewidth]{imagefile}
+		\caption{\textbf{INSERT PURDY TEXT}}
+		\label{fig:KeplerAdaptiveDT}
+	\end{figure}
 	
 	
 \end{document}

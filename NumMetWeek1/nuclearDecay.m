@@ -17,7 +17,7 @@ Nb0 = 1000;
 dNa = @(N) -N/taua;
 dNb = @(N1,N2) N1/taua - N2/taub;
 
-tend = 100;
+tend = 60;
 n = ceil(tend/dt);
 
 
@@ -30,7 +30,7 @@ t(1) = 0;
 
 taus = [5,10; 5,5; 3600,5];
 Ns	= [1000,1000; 1000,1000; 1000,1000];
-
+fnames = {'unequaltau.pdf','equaltau.pdf','largetau.pdf'};
 % Euler-integration
 for j = 1:size(taus,1)
 	taua = taus(j,1);
@@ -59,35 +59,61 @@ for j = 1:size(taus,1)
 	tit = sprintf('$\\tau_A = %d,\\ \\tau_B = %d$',taua,taub);
 
 	% Plotting
-	figure
-    subplot(2,1,1)
+	f = figure;
+    f.Units = 'centimeter';
+    f.PaperSize = [20 5];
+    f.PaperPositionMode = 'manual';
+    f.PaperPosition = [0 0 20 5];
+    
+    
+    subplot(1,2,1)
 
 	hold on
 	plot(t,Na,'b')
 	plot(t,Nb,'r')
 	plot(t,NaAnal,'.b')
 	plot(t,NbAnal,'.r')
-%     plot(t,NbAnal2,'.','Color',[0.929 0.694 0.125])
+    if j == 3
+    plot(t,NbAnal2,'.','Color',[0.929 0.694 0.125])
+    end
     xlabel('Time')
     ylabel('Particle count')
 	% plot(t,Na+Nb)
 	hold off
-	title(tit)
-	legend('$N_A$','$N_B$','$N_A$ analytic','$N_B$ analytic','Steady-state $N_B$')
+    axis([0 60 0 1000])
+    if j == 1
+       axis([0 60 0 max(Nb)]) 
+    end
+% 	title(tit)
+	legend('$N_A$','$N_B$','$N_A$ analytic','$N_B$ analytic','Steady-state $N_B$','location','east')
 
 	% Residual
-	subplot(2,1,2)
+	subplot(1,2,2)
 	hold on
-	plot(t,(Na-NaAnal))
-	plot(t,(Nb-NbAnal))
-%     plot(t,abs(Nb-NbAnal2))
-%     ax = gca;
-%     ax.YScale = 'log';
+	if j ~= 3
+        plot(t,(Na-NaAnal))
+        plot(t,(Nb-NbAnal))  
+    end
+    ax = gca;
+    if j == 3
+        plot(t,abs(Na-NaAnal))
+        plot(t,abs(Nb-NbAnal))
+        plot(t,abs(Nb-NbAnal2))
+        ax.YScale = 'log';
+%         ax.YLim = [10^-10,10^15];
+    end
+    if j == 2
+       ax.YLim = [-4 4]; 
+    end
+    ax.XLim = [0 60];
 	hold off
     xlabel('Time')
     ylabel('Particle count')
-	legend('Residual of $N_A$','Residual of $N_B$','Residual of steady-state $N_B$')
-
+	l = legend('Res of $N_A$','Res of $N_B$','Res of steady-state $N_B$','location','northeast');
+    if j == 3
+        l.Position = l.Position + [0.05 0.02 0 0];
+    end
+    print(fnames{j},'-dpdf')
 end
 
 
