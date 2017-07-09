@@ -36,22 +36,10 @@
 \begin{document}
 	\maketitle
 	\section{Nuclear Decay}
-	Suppose  two radioactive isotopes, A and B, are present with populations $ N_A(t) $ and $ N_B(t) $, and decay times $ \tau_A $  and $ \tau_B $. Type A decays into type B, while B decays into something not tracked. The relevant differential equations are
-	\begin{equation}
-		\diff[\ud]{N_A}{t} = - \frac{N_A}{\tau_A}, \quad \diff[\ud]{N_B}{t} = \frac{N_A}{\tau_A} - \frac{N_B}{\tau_B}.
-	\end{equation}
-	The purpose of this assignment is to solve this problem numerically for a number of different conditions, using Euler integration. This method is used for its simplicity and ease of implementation. For all of the following simulations and plots, the value $ \Delta t = 0.1 $ is used.
+	Suppose  two radioactive isotopes, A and B, are present with populations $ N_A(t) $ and $ N_B(t) $, and decay times $ \tau_A $  and $ \tau_B $. Type A decays into type B, while B decays into something not tracked. The purpose of this assignment is to solve this problem numerically for a number of different conditions, using Euler integration. This method is used for its simplicity and ease of implementation. For all of the following simulations and plots, the value $ \Delta t = 0.1 $ is used.
 	
 	\subsection{Compare the numerical and analytical solutions}
-	The analytical solutions are given in the assignment, and are as follows:
-	\begin{align}
-		N_A(t) &= N_A(0) \exp\pp{-\frac{t}{\tau_A}}, \\
-		N_B(t) &= \begin{cases}
-		N_B(0) \exp\pp{-\frac{t}{\tau_A}} + t \frac{N_A(0)}{\tau_A} \exp\pp{-\frac{t}{\tau_A}}, & \tau_A= \tau_B, \\
-		N_B(0) \exp\pp{-\frac{t}{\tau_B}} + \frac{N_A(0)}{\frac{\tau_A}{\tau_B} - 1} \bb{\exp\pp{-\frac{t}{\tau_A}} - \exp\pp{-\frac{t}{\tau_B}}}, & \tau_A \neq \tau_B.
-		\end{cases}
-	\end{align}	
-	The results, along with residual plots, for $ N_A(0) = N_B(0) = 1000 $ and $ \tau_A = 5, \tau_B = 10 $ are shown below, with the analytical solution for $ \tau_A \neq \tau_B $:
+	The results of the numerical simulation, along with residual plots, for $ N_A(0) = N_B(0) = 1000 $ and $ \tau_A = 5, \tau_B = 10 $ are shown below, with the analytical solution for $ \tau_A \neq \tau_B $:
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=\linewidth]{unequaltau.pdf}
@@ -84,19 +72,6 @@
 	
 	\section{Projectile motion}
 	For this assignment, projectile motion is to be simulated, again using the Euler-method. This gives another example of how to use this simple method of simulation, for a problem which (without wind resistance) has an analytical solution. A drag force is introduced after this, to give an example of a numerical problem with no analytical solution.
-	
-	Furthermore, for this problem, a second derivative is used, whereby a second Euler integration is needed, to complete the time step. The relevant differential equations are
-	\begin{equation}
-		\diff[\ud]{\V{r}}{t} = \V{v}, \quad \diff[\ud]{\V{v}}{t} = -g\Vy.
-	\end{equation}
-	where the analytical solution is computed by integrating the second equation twice, and using the relevant initial conditions:
-	\begin{equation}
-		\V{r}(t) = \begin{pmatrix}
-		x(t) \\ y(t)
-		\end{pmatrix} = \begin{pmatrix}
-		x_0+v_{x,0} t \\ y_0+v_{y,0}t-gt^2/2
-		\end{pmatrix}. 
-	\end{equation}
 	
 	
 	\subsection{Without wind resistance}
@@ -143,11 +118,7 @@
  	
  	
  	\section{Orbits of comets}
- 	For this assignment, the trajectory of particles in a gravitational field is calculated both using Euler integration and 4th order Runge-Kutta integration (RK4), which uses a weighted average of several derivatives with smaller time steps, to calculate the final value of the next time step. The differential equations for this problem is
- 	\begin{equation}
- 		\diff[\ud]{\V{r}}{t} = \V{v}, \quad \diff[\ud]{\V{v}}{t} = \frac{GM}{r^2}\U{r} = \frac{GM}{r^3}\V{r},
- 	\end{equation}
- 	where, for the purpose of simplicity, $ GM $ is set to $ 4\pi^2 \e{(AU)}^3/\e{(yr)}^3 $. This gives a circular orbit for an initial radius of $ 1 \e{AU} $ and initial tangential velocity of $ 2 \pi \e{AU}/\e{yr} $. Furthermore, the mass of the comet in orbit, is set to unity. 
+ 	For this assignment, the trajectory of particles in a gravitational field is calculated both using Euler integration and 4th order Runge-Kutta integration (RK4), which uses a weighted average of several derivatives with smaller time steps, to calculate the final value of the next time step. For the purpose of simplicity, $ GM $ is set to $ 4\pi^2 \e{(AU)}^3/\e{(yr)}^3 $. This gives a circular orbit for an initial radius of $ 1 \e{AU} $ and initial tangential velocity of $ 2 \pi \e{AU}/\e{yr} $. Furthermore, the mass of the comet in orbit, is set to unity. 
  	
  	\subsection{Euler and RK4}
  	First, the two methods are compared for a circular orbit with a step size of $ \Delta t = 0.02 \e{yr} $ and a total simulation time of $ 1 \e{yr} $. The trajectories are shown in the figure below:
@@ -194,11 +165,9 @@
 	For the circular orbit the absolute fractional error is exceedingly small, 9 orders of magnitude below unity, whilst for the elliptical orbit it is in the small percentages, between 0 and 6 percent. The reason for the dips in fractional error is seen in figure \ref{fig:KeplerAdaptive2}, as the Runge-Kutta method slowly circles inwards but at the smallest radius, the orbits align again.
 
 	\subsection{Adaptive 4th order Runge-Kutta}
-	For this last exercise, an adaptive version of the 4th order Runge-Kutta method is introduced. This performs the integration three times. Once normally, and then twice in a row, with half the time step size, to get one full integration with the chosen step size. The big step is called $ x_b(t+\Delta t) $ and the result of the small step(s) is called $ x_s(t_+\Delta t) $. If the error, defined as $ \text{err} = |x_b(t+\Delta t)-x_s(t+\Delta t) |$, is smaller than some specified upper bound, the time step size $ \Delta t $ is accepted and increased for the next time step, but if the error is \textit{larger} than the upper bound, the step size is rejected, decreased, and the error is calculated again with the smaller step size.
-	
-	This allows the simulation to have a starting size for $ \Delta t $, but to increase it when the function is only changing slowly, and decreasing it when the function is changing rapidly. 
-	
-	For the same initial conditions as before, when comparing the analytical and regular Runge-Kutta method, the adaptive and non-adaptive Runge-Kutta methods are compared, by calculating the trajectories and evolution of energy, as a function of time.
+	For this last exercise, an adaptive version of the 4th order Runge-Kutta method is introduced. This method performs the integration first with the normal step size, and then in two steps, with half the step size. If the difference between the two results is smaller than a given bound, the step size is increased for the next iteration, while if it is above the bound, the step size is decreased. 
+
+	For the same initial conditions as before the adaptive and non-adaptive Runge-Kutta methods are compared by calculating the trajectories along with the of energy as a function of time.
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width = \linewidth]{RK42pi.pdf}
