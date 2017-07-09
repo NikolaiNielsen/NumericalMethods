@@ -83,7 +83,7 @@
 	
 	
 	\section{Projectile motion}
-	For this assignment, projectile motion is to be simulated, again using the Euler-method. This gives another example of how to use this simple method of simulation, for a problem which (without wind resistance) has an analytical solution. A drag force is introduced after this, to give an example of a numerical problem with no analytical solution.
+	For this assignment, projectile motion is to be simulated, again using the Euler-method. This gives another example of how to use this simple method of simulation, for a problem which (without wind resistance) has an analytical solution. After this, uncharted waters are encountered, when wind resistance is included. Here no analytical solution is given, and all reliance upon the previous methods, like residuals between the numerical and analytical solutions, are not applicable.
 	
 	Furthermore, for this problem, a second derivative is used, whereby a second Euler integration is needed, to complete the time step. The relevant differential equations are
 	\begin{equation}
@@ -107,10 +107,14 @@
 		\caption{Plots of the numerical and analytical solutions to projectile motion (left) and the absolute residual (right).}
 		\label{fig:projectile}
 	\end{figure}
-	The absolute residual is also the global truncation error, as defined in the slides for the week 1 lectures. As is expected, the error increases linearly in time, given the linear increase in velocity. This means that the Euler integration underestimates the velocity by a constant amount per time step, leading to a linear increase in global truncation error.
+	the absolute residual is also the global truncation error, as defined in the slides for the week 1 lectures. As is expected, the error increases linearly in time, given the linear increase in velocity. This means that the Euler integration underestimates the velocity by a constant amount per time step, leading to a linear increase in global truncation error.
 	
 	
-	Next the effect of the size of the time step $ \Delta t $ is analysed. This is done by creating a vector of logarithmically spaced values for $ \Delta t $, between $ 10^{-1} \e{s} $ and $ 10^{-8} \e{s}$, running the simulation, and recording the global truncation error:
+	Next the effect of the size of the time step $ \Delta t $ is analysed. This is done by creating a vector of logarithmically spaced values for $ \Delta t $, between $ 10^{-1} \e{s} $ and $ 10^{-8} \e{s}$, running the simulation, and recording the global truncation error. If any smaller step size is to be investigated, the simulation as to be broken into pieces, as the size of the arrays exceed the amount of memory available on the desktop workstation used.
+	
+	This could be done by recording the first, say, $ 10^6 $ steps, storing the final results, clearing the arrays from memory and then running the simulation again, with the final results as the new initial conditions, until the full simulation has been completed.
+	
+	However, with the step sizes as mentioned, the final global truncation error becomes
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.5\linewidth]{projError.pdf}
@@ -139,7 +143,7 @@
  		\caption{Semilog plot of the final distance (left) and double-log plot of the simulation time (right). Both as a function of $ \Delta t $.}
  		\label{fig:simtime}
  	\end{figure}
- 	The reason for also recording the simulation time is as follows: The final simulation, with $ \Delta t = 10^{-8} \e{s} $, took just under 7 minutes, but running a simulation, where the difference between the final results of this and the final simulation is 1\% took only 0.0061 seconds. This simulation has a step size of $ \Delta t = 0.0043 s $. So while the precision is within 1 \% of the final simulation, the run time is almost 5 orders of magnitude smaller. The desired precision can of course be chosen as needed, achieving a precise enough results whilst keeping run time small enough to be practical.
+ 	The reason for also recording the simulation time is that while a simulation taking a week to run might be the most precise result achievable, it is not very practical, and might not be that much more precise than that of a simulation that only takes a minute or two. For example, the final simulation, with $ \Delta t = 10^{-8} \e{s} $, took just under 7 minutes. The simulation with the smallest $ \Delta t $, coming within 1\% of the result of the final simulation took just 0.0061 seconds, with a time step size of $ \Delta t = 0.0043 s $. So while the precision is within 1 \% of the final simulation, the run time is almost 5 orders of magnitude smaller. The desired precision can of course be chosen as needed, achieving a precise enough results whilst keeping run time small enough to be practical.
  	
  	
  	\section{Orbits of comets}
@@ -176,9 +180,13 @@
 	\begin{equation}
 		r(\theta) = \frac{a(1-\epsilon^2)}{1-\epsilon \cos \theta}
 	\end{equation}
-	where $ \epsilon = \sqrt{1-b^2/a^2}$ is the eccentricity of the orbit, $ a = (r_{\text{max}}+r_{\text{min}})/2$ is the semimajor axis and $ b = \sqrt{r_{\text{max}}r_{\text{min}}}$ is the semiminor axis of the orbit.
-	
+	where $ \epsilon = \sqrt{1-b^2/a^2}$ is the eccentricity of the orbit, $ a $ is the semimajor axis and $ b $ is the semiminor axis of the orbit. The semimajor and semiminor axes are given respectivle by the arithmetic and geometric mean of the largest and smallest radius:
+	\begin{equation}
+		a = \frac{r_{\text{max}}+r_{\text{min}}}{2}, \quad b = \sqrt{r_{\text{max}r_{\text{min}}}}.
+	\end{equation}
 	Next the Runge-Kutta method is compared to the analytical solution. The smallest and largest radii of the orbit are calculated after the full simulation has run, and the magnitude of the radius is calculated at each point along the orbit. To compare the two solutions, two initial conditions are chosen: both starting at a radial distance of $ 1 \e{AU} $, with initial tangential velocity of $ \pi \e{AU/yr} $ and $ 2 \pi \e{AU/yr} $. Both simulations are run with a step size of $ \Delta t  = 0.005 \e{yr} $.
+	
+	The simulation uses cartesian coordinates, so to retrieve the angle used in the analytical solution the function \texttt{atan2} is used. This is different to the normal arctangent function in that \texttt{atan2} takes two inputs, $ y $ and $ x $, whereas the normal arctangent only takes one $ v = y/x $. The normal arctangent function is only defined for angles between $ -\pi/2 $ and $ \pi/2 $ radians, so in the right half-plane. But the \texttt{atan2} function works for all angles between $ 0 $ and $ 2\pi $ radians, and as such is the one needed for this problem.
 	
 	With the angle, semimajor and semiminor axes calculated, the analytical solution can be computed. The numerical solution is then compared by computing the absolute fractional error across the entire period of an orbit:
 	\begin{equation}
