@@ -3,16 +3,16 @@ clear all; close all; clc
 
 % Control variables
 Simple = 0;
-ErrDt = 0;
+ErrDt = 1;
 ErrH = 0;
-VonNeumann = 1;
+VonNeumann = 0;
 
 % Error as a function of dt
 simDt = 0;
-plotDt = 0;
+plotDt = 1;
 
 % Error as a function of N
-simH = 1;
+simH = 0;
 plotH = 1;
 
 % Von Neumann stuff
@@ -25,7 +25,7 @@ L = 2*pi;
 N0 = 128;
 D = 0.1;
 tend = 1;
-dtMult = 1;
+dtMult = 2;
 
 % Creating the differentiation matrix
 % First we create the ones above the diagonal
@@ -52,10 +52,11 @@ errdts = zeros(1,length(dts));
 errNs = zeros(1,length(Ns));
 
 if Simple == 1
-	x = linspace(-L/2,L/2,N0);
+	N = N0;
+	x = linspace(-L/2,L/2,N);
 	h = abs(x(1)-x(2));
 
-	dt = h^2/(dtMult*2*D);
+	dt = dt0/dtMult;
 
 	nt = ceil(tend/dt);
 	t = zeros(1,nt);
@@ -84,8 +85,29 @@ if Simple == 1
 		res(:,i) = C(:,i)-CAnal(:,i);
 	end
 	
-	figure
-	surf(x,t,C');
+	f = figure;
+	f.Units = 'centimeter';
+	f.PaperSize = [7 3];
+	f.PaperPositionMode = 'manual';
+	f.PaperPosition = [0 0 7 3];
+	hold on
+	ax = gca;
+	plot(x,C(:,end))
+	plot(x(2:2:N),CAnal(2:2:N,end),'.')
+	ax.XLim = [-L/2 L/2];
+	xlabel('$x$')
+	ylabel('$C$')
+	
+	hold off
+	
+	ax = axes('Position',[0.75 0.525 0.2 0.3]);
+	plot(x,res(:,end))
+	ax.XLim = [-L/2 L/2];
+	ax.YLim = [-3*10^-3 2*10^-3];
+	ax.XTick = [];
+	
+	print('diffSimple','-dpdf')
+	close all
 end
 
 if ErrDt == 1
@@ -95,7 +117,7 @@ if ErrDt == 1
 	if simDt == 1
 	for j = 1:length(dts)
 
-		dt = h^2/(dtMult*2*D);
+		dt = dts(j);
 
 		nt = ceil(tend/dt);
 		t = zeros(1,nt);
@@ -126,15 +148,33 @@ if ErrDt == 1
 		end
 		ts(j) = t(end);
 		errdts(j) = sum(res(:,end))/N;
-		fprintf('ErrDts: run %d done\n',j)
+		fprintf('ErrDts: run %d done.\n',j)
 	end
 	save('DiffErrDt','errdts','ts','dts')
 	end
 	
 	if plotDt == 1
 		load('DiffErrDt')
-		figure
-		plot(dts,errdts,'.')
+		
+		f = figure(1);
+		f.Units = 'centimeter';
+		f.PaperSize = [7 5];
+		f.PaperPositionMode = 'manual';
+		f.PaperPosition = [0 0 f.PaperSize];
+		
+		ax = gca;
+		
+		plot(dts,abs(errdts),'.')
+% 		xlabel('$\Delta t$')
+% 		ylabel('Normalized cummulative error')
+		ylabel('$\sum (|C-C_a|/N)$')
+
+		ax.XLim = [min(dts) max(dts)];
+ 		ax.XTick = dt0*[1/4 1/2 3/4 1];
+		ax.XTickLabel = {'$\Delta t/4$','$\Delta t/2$','$3\Delta t/4$','$\Delta t$'};
+		
+		print('diffErrdt','-dpdf')
+		close 1
 		
 	end
 end

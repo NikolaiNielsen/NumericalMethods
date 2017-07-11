@@ -52,7 +52,7 @@
 		0 & x \neq 0,
  		\end{cases}
 	\end{equation}
-	as this is a sharp peak around $ x_0 $ and ">integrating"< this over all space gives 1:
+	as this is a sharp peak around $ x_0 $ and "integrating" this over all space gives 1:
 	\begin{equation}\label{key}
 		\sum \delta(x-x_0) h = \sum_{x_0}^{x_0} \frac{h}{h} = 1
 	\end{equation}
@@ -69,6 +69,11 @@
 	0 & \text{otherwise}
 	\end{cases}, \ (\text{for equal } N).
 	\end{equation}
+	
+	To compare the numerical and analytical solutions, the following values are used: $D = 0.1, L = 2\pi,N=128 $, with $ h=L/(N-1) $ as this is the spacing MATLAB uses with the \texttt{linspace} function, and $ \Delta t = h^2/2D $. The positions after $ t = 1 $ are plotted, along with the difference between the two solutions
+	\begin{figure}[H]
+		content...
+	\end{figure}
 	
 \end{document}
 
