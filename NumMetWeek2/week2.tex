@@ -62,7 +62,13 @@
 	\end{equation}
 	which is a delta function in the limit of $ t\to 0 $, but spreads out as time passes.
 	
-	
+	However, the choice of $ N $ might pose a small problem, if the $ x $-interval is centred around $ x=0 $. If there is an odd number of points, the middle-most point will definitely be $ x=0 $, but if there is an even number of points, this is not the case. $ x= 0 $ will lie directly between two points. To prevent any discrepancy, the delta-function is modified for even values of $ N $:
+	\begin{equation}\label{key}
+	\delta(x-x_0) \to \begin{cases}
+	1/2h & x=x_0\pm h/2 \\
+	0 & \text{otherwise}
+	\end{cases}, \ (\text{for equal } N).
+	\end{equation}
 	
 \end{document}
 
