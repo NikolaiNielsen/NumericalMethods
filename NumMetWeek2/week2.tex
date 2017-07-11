@@ -1,0 +1,68 @@
+% Nikolai Nielsens "Fysiske Fag" preamble
+\documentclass[a4paper,10pt]{article} 	% A4 papir, 10pt størrelse
+\usepackage[english]{babel}
+\usepackage{Nikolai} 					% Min hjemmelavede pakke
+\usepackage[dvipsnames]{xcolor}
+
+% Margen
+\usepackage[margin=1in]{geometry}
+
+% Max antal kolonner i en matrix. Default er 10
+%\setcounter{MaxMatrixCols}{20}
+
+% Hvor dybt skal kapitler labeles?
+%\setcounter{secnumdepth}{4}	
+%\setcounter{tocdepth}{4}
+
+
+% Hvilket nummer skal der startes med i sections? (n-1)
+%\setcounter{section}{0}	
+
+% Til nummerering af ligninger. Så der står (afsnit.ligning) og ikke bare (ligning)
+\numberwithin{equation}{section}
+
+
+% Header
+%\usepackage{fancyhdr}
+%\head{}
+%\pagestyle{fancy}
+
+%Titel
+\title{Numerical Methods in Physics Week 2}
+\author{Nikolai Plambech Nielsen}
+\date{}
+
+\begin{document}
+	\maketitle
+	\section{Diffusion}
+	For this assignment, diffusion from an initial delta-function peak is evaluated numerically. The differential equation is the diffusion equation, which in one dimension is
+	\begin{equation}\label{key}
+		\diff{C}{t} = D \diff{^2 C}{t^2}
+	\end{equation}
+	where $ D $ is the diffusion constant. This is a partial differential equation which necessitates the use of other methods. For evaluating the time derivative, simple Euler integration can be used, but for evaluating the double space derivative, a new method is used. First, space needs to be discretized, which allows one to calculate the derivative similarly to Euler integration. The integration scheme is called Forward in Time Centered in Space (FTCS), which for this equation uses 3 points at the last time step, to compute the value at each point in the next time step. To evaluate the $ j $'th point in space, the $ j-1 $'th, $ j $'th and $ j+1 $'th point, all from the last time step, is used. Numerically this is
+	\begin{equation}
+		C^{n+1}_j = C^n_j + \frac{D \Delta t}{h^2} (C^n_{j-1}+C^n_{j+1} - 2 C^n_j),
+	\end{equation}
+	where $ h $ is the distance between each point in space, equivalent to $ \Delta t $ in time.
+	
+	To numerically evaluate the delta-function, the following numerical equivalent is used
+	\begin{equation}\label{key}
+		\delta(x-x_0) \to \begin{cases}
+		1/h & x = x_0 \\
+		0 & x \neq 0,
+ 		\end{cases}
+	\end{equation}
+	as this is a sharp peak around $ x_0 $ and ">integrating"< this over all space gives 1:
+	\begin{equation}\label{key}
+		\sum \delta(x-x_0) h = \sum_{x_0}^{x_0} \frac{h}{h} = 1
+	\end{equation}
+	For simplicity, $ x_0 = 0 $ is used for all the following assignments. The analytical solution to this problem is
+	\begin{equation}\label{key}
+		C(x,t) = \frac{1}{\sigma(t) \sqrt{2\pi}} \exp\pp{-\frac{(x-x_0)^2}{2\sigma(t)}}, \quad \sigma(t) = \sqrt{2Dt}.
+	\end{equation}
+	which is a delta function in the limit of $ t\to 0 $, but spreads out as time passes.
+	
+	
+	
+\end{document}
+

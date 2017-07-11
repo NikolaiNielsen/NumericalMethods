@@ -5,16 +5,16 @@ clear all; close all; clc
 
 % Control Variables
 VonNeumann = 1;
-Simple = 1;
+Simple = 0;
 
 
 % For Von Neumann
-NVdt = 1+[-1,1]*10^-2;
-NVtend = 4;
+NVdt = 1+[-1,1]*10^-3;
+NVtend = 100;
 
 % some constants
 L = 2*pi;
-N = 129;
+N = 129; % USE AN ODD NUMBER OF POINTS
 D = 0.1;
 tend = 2;
 dtMult = 1;
