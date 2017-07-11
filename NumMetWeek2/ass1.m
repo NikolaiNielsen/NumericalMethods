@@ -4,16 +4,18 @@ clear all; close all; clc
 % Control variables
 Simple = 0;
 ErrDt = 1;
-ErrH = 0;
+ErrH = 1;
 VonNeumann = 0;
 
+plotBoth = 1;
+
 % Error as a function of dt
-simDt = 0;
-plotDt = 1;
+simDt = 1;
+plotDt = 0;
 
 % Error as a function of N
-simH = 0;
-plotH = 1;
+simH = 1;
+plotH = 0;
 
 % Von Neumann stuff
 NVtend = 10;
@@ -96,7 +98,7 @@ if Simple == 1
 	plot(x(2:2:N),CAnal(2:2:N,end),'.')
 	ax.XLim = [-L/2 L/2];
 	xlabel('$x$')
-	ylabel('$C$')
+	ylabel('$C(x,t=1)$')
 	
 	hold off
 	
@@ -147,7 +149,7 @@ if ErrDt == 1
 			res(:,i) = C(:,i)-CAnal(:,i);
 		end
 		ts(j) = t(end);
-		errdts(j) = sum(res(:,end))/N;
+		errdts(j) = sum(abs(res(:,end)))/N;
 		fprintf('ErrDts: run %d done.\n',j)
 	end
 	save('DiffErrDt','errdts','ts','dts')
@@ -224,7 +226,7 @@ if ErrH == 1
 			res(:,i) = C(:,i)-CAnal(:,i);
 		end
 		ts(j) = t(end);
-		errNs(j) = sum(res(:,end))/N;
+		errNs(j) = sum(abs(res(:,end)))/N;
 		fprintf('ErrH: run %d done\n',j)
 	end	
 	save('DiffErrN','errNs','ts','Ns')
@@ -275,4 +277,37 @@ if VonNeumann == 1
 	
 	subplot(1,2,2)
 	plot(x,Cend(:,2))
+end
+
+if plotBoth == 1
+	load('DiffErrN')
+	load('DiffErrDt')
+	
+	f = figure(1);
+	f.Units = 'centimeter';
+	f.PaperSize = [20,6];
+	f.PaperPositionMode = 'manual';
+	f.PaperPosition = [0 0 f.PaperSize];
+	
+	subplot(1,2,1)
+	
+	ax = gca;
+		
+	plot(dts,abs(errdts),'.')
+	xlabel('$\Delta t$')
+% 	ylabel('Normalized cummulative error')
+	ylabel('$\sum (|C-C_a|/N)$')
+
+	ax.XLim = [min(dts) max(dts)];
+	ax.XTick = dt0*[1/4 1/2 3/4 1];
+	ax.XTickLabel = {'$\Delta t/4$','$\Delta t/2$','$3\Delta t/4$','$\Delta t$'};
+	
+	subplot(1,2,2)
+	plot(Ns,errNs,'.')
+	ylabel('$\sum (|C-C_a|/N)$')
+	xlabel('$N$')
+	
+	
+	print('diffErr','-dpdf')
+	close(1)
 end

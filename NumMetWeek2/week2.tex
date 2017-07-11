@@ -70,10 +70,24 @@
 	\end{cases}, \ (\text{for equal } N).
 	\end{equation}
 	
-	To compare the numerical and analytical solutions, the following values are used: $D = 0.1, L = 2\pi,N=128 $, with $ h=L/(N-1) $ as this is the spacing MATLAB uses with the \texttt{linspace} function, and $ \Delta t = h^2/2D $. The positions after $ t = 1 $ are plotted, along with the difference between the two solutions
+	To compare the numerical and analytical solutions, the following values are used: $D = 0.1, L = 2\pi,N=128 $, with $ h=L/(N-1) $ as this is the spacing MATLAB uses with the \texttt{linspace} function, and $ \Delta t = h^2/4D $. The positions after $ t = 1 $ are plotted, along with the difference between the two solutions
 	\begin{figure}[H]
-		content...
+		\centering
+		\includegraphics[width = 0.5\linewidth]{diffSimple.pdf}
+		\caption{The numerical (blue line) and analytical (orange points) solutions to the diffusion equation for a delta function initial condition. An inset of the difference between the numerical and analytical solutions is also shown.}
+		\label{fig:diffSimple}
 	\end{figure}
+	The analytical and numerical solution to the differential equation are in agreement, with a max difference of $ 2.04\D10^{-3} $. However, at the edges of the simulation, where both solutions are approximately zero, the fractional error does exceed 0.5 at places.
+	
+	Next the relation between error, grid size and time step size is explored. However, comparing errors between simulations with different grid sizes becomes difficult, as this does not allow for easy plotting. Therefore the error on the final time step is summed up and divided by the number of points to normalize the error. First the simulation is run with 128 points, for 1 unit of time, with 100 linearly spaced values of $ \Delta t $ between $ h^2/2D $ and $ h^2/100D $. Next the simulation is run with between 20 and 1000 points in increments of 20, with $ \Delta t = h^2/4D $, where $ h = L/(N-1) $, to satisfy the stability condition. The results are shown in the figures below:
+	 
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width = \linewidth]{diffErr.pdf}
+		\caption{Plots of the normalized cumulative error as a function of the time step size $ \Delta t $ (left) and grid size $ N $ (right). On the right plot, the grid size is $ N = 128 $, and on the left plot, the time step is $ \Delta t = h^2/4D $.}
+		\label{fig:diffErr}
+	\end{figure}
+	
 	
 \end{document}
 
