@@ -74,72 +74,72 @@ print('projectile','-dpdf')
 
 
 %% Error analysis
-r0 = [0;1];
-v0 = 2;
-g = 9.8;
-theta = 70*pi/180;
-
-tend = t0;
-
-dr = @(v) v;
-
-dts = logspace(-1,-8,100);
-err = zeros(length(dts),2);
-for j = 1:length(dts)
-	
-	dt = dts(j);
-	
-	n = ceil(tend/dt);
-	
-	r = zeros(2,n);
-	v = r;
-	t = zeros(1,n);
-	
-	r(:,1) = r0;
-	v(:,1) = v0*[cos(theta);sin(theta)];
-	t(1) = 0;
-	
-	
-	for i = 2:n
-		t(i) = t(i-1)+dt;
-		v(:,i) = v(:,i-1)+[0;-g]*dt;
-		r(:,i) = r(:,i-1)+dr(v(:,i))*dt;
-	end
-	
-	
-	rAnal = r0+v(:,1)*t+[0;-g/2]*t.^2;
-	index = r(2,:)>=-0.05;
-	res = abs(r(:,index)-rAnal(:,index));
-	err(j,:) = res(:,end);
-    fprintf('Error Analysis: run %d done\n',j)
-end
-save('projError.mat','dts','err');
-
-
-%%
-load('projError.mat')
-errplot = sqrt(sum(err.^2,2));
-f = fit(log(dts'),log(errplot),'a*x+b');
-errFit = f.b*dts.^(f.a);
-f2 = fit(dts',errplot,'a*x^b');
-errFit2 = f2.a*dts.^(f2.b);
-errFit3 = (f.b+f2.a)/2*dts.^(f2.b);
-
-f = figure;
-f.Units = 'centimeter';
-f.PaperSize = [10 5];
-f.PaperPositionMode = 'manual';
-f.PaperPosition = [0 0 10 5];
-hold on
-plot(dts,errplot,'.')
-% plot(dts,errFit)
-% plot(dts,errFit3)
-ax = gca;
-ax.XScale = 'log';
-ax.YScale = 'log';
-xlabel('$\Delta t$ [s]')
-ylabel('Global Error [m]')
-print('projError','-dpdf')
+% r0 = [0;1];
+% v0 = 2;
+% g = 9.8;
+% theta = 70*pi/180;
+% 
+% tend = t0;
+% 
+% dr = @(v) v;
+% 
+% dts = logspace(-1,-8,100);
+% err = zeros(length(dts),2);
+% for j = 1:length(dts)
+% 	
+% 	dt = dts(j);
+% 	
+% 	n = ceil(tend/dt);
+% 	
+% 	r = zeros(2,n);
+% 	v = r;
+% 	t = zeros(1,n);
+% 	
+% 	r(:,1) = r0;
+% 	v(:,1) = v0*[cos(theta);sin(theta)];
+% 	t(1) = 0;
+% 	
+% 	
+% 	for i = 2:n
+% 		t(i) = t(i-1)+dt;
+% 		v(:,i) = v(:,i-1)+[0;-g]*dt;
+% 		r(:,i) = r(:,i-1)+dr(v(:,i))*dt;
+% 	end
+% 	
+% 	
+% 	rAnal = r0+v(:,1)*t+[0;-g/2]*t.^2;
+% 	index = r(2,:)>=-0.05;
+% 	res = abs(r(:,index)-rAnal(:,index));
+% 	err(j,:) = res(:,end);
+%     fprintf('Error Analysis: run %d done\n',j)
+% end
+% save('projError.mat','dts','err');
+% 
+% 
+% %%
+% load('projError.mat')
+% errplot = sqrt(sum(err.^2,2));
+% f = fit(log(dts'),log(errplot),'a*x+b');
+% errFit = f.b*dts.^(f.a);
+% f2 = fit(dts',errplot,'a*x^b');
+% errFit2 = f2.a*dts.^(f2.b);
+% errFit3 = (f.b+f2.a)/2*dts.^(f2.b);
+% 
+% f = figure;
+% f.Units = 'centimeter';
+% f.PaperSize = [10 5];
+% f.PaperPositionMode = 'manual';
+% f.PaperPosition = [0 0 10 5];
+% hold on
+% plot(dts,errplot,'.')
+% % plot(dts,errFit)
+% % plot(dts,errFit3)
+% ax = gca;
+% ax.XScale = 'log';
+% ax.YScale = 'log';
+% xlabel('$\Delta t$ [s]')
+% ylabel('Global Error [m]')
+% print('projError','-dpdf')
 
 %% Air resistance
 
@@ -180,6 +180,7 @@ for j = 1:length(dts)
 	t(1) = 0;
 
     profile on
+	
 	for i = 2:n
 		t(i) = t(i-1)+dt;
 		a(:,i) = -k*sqrt(sum(v(:,i-1).^2))*v(:,i-1)-[0;g];
@@ -187,6 +188,12 @@ for j = 1:length(dts)
 		r(:,i) = r(:,i-1)+v(:,i)*dt;
     end
     p = profile('info');
+	
+	for i = 1:length(p.FunctionTable)
+		if p.FunctionTable(i).Type == 'M-script'
+			fprintf('Found one! %d/%d, t = %f\n',i,length(p.FunctionTable),p.FunctionTable(i).TotalTime)
+		end
+	end
 	time(j) = p.FunctionTable.TotalTime(1);
     profile clear
     
