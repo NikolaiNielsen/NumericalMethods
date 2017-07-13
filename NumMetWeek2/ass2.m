@@ -13,7 +13,7 @@ Spectral = 1;
 SpectralNoSource = 0;
 Cyclic = 1;
 SpectralErr = 1;
-SpectralaRK4 = 1;
+SpectralaRK4 = 0;
 
 % Desired fractional local truncation error for adaptive runge kutta
 Aerr = 10^-5;
@@ -28,7 +28,7 @@ NVtend = 100;
 L = 2*pi;
 N = 128; % USE AN ODD NUMBER OF POINTS - BUT NOT FOR SPECTRAL...
 D = 0.1;
-tend = 2;
+tend = 0.1;
 dtMult = 1/4;
 S = 1;
 tau = 1;
@@ -169,12 +169,12 @@ if Spectral == 1
 		% Fourier transform it
 		Ck = fft(C);
 		k = kvalues(N)';
-		p = {k,D,tau,Ck2(:,1)};
+		p = {k,D,tau,Ck(:,1)};
 		for n = 2:nt
 			t(n) = t(n-1)+dt;
 % 			Ck(:,n) = dt*Ck(:,1)+(1-dt*D*k.^2-dt/tau).*Ck(:,n-1);
 			% Now with dedicated function
-			Ck(:,n) = Ck2(:,n-1)+dt*spectral(Ck2(:,n-1),0,p);
+			Ck(:,n) = Ck(:,n-1)+dt*spectral(Ck(:,n-1),0,p);
 		end
 		
 		
@@ -183,11 +183,119 @@ if Spectral == 1
 		
 		% figures
 		figure
-		surf(x,t2,Cf2')
+		surf(x,t,Cf')
 		shading interp
 		
 		
 	end
+	
+	if SpectralErr == 1
+		dt0 = 2*tau*h^2/(4*D*tau+h^2);
+		dts = linspace(dt0,dt0/5,100);
+		
+		Const = S/h*exp(-(x-x0).^2/(10^-2));
+		CSteady = exp(-abs(x-x0)'/(sqrt(tau*D)));
+		errDts = zeros(size(dts));
+		Cends = zeros(N,length(dts));
+		
+		for j = 1:length(dts)
+			dt = dts(j);
+			nt = ceil(tend/dt);
+			t = zeros(1,nt);
+			C = zeros(N,nt);
+			C(:,1) = Const;
+
+			% Fourier transform it
+			Ck = fft(C);
+			k = kvalues(N)';
+			p = {k,D,tau,Ck(:,1)};
+			for n = 2:nt
+				t(n) = t(n-1)+dt;
+	% 			Ck(:,n) = dt*Ck(:,1)+(1-dt*D*k.^2-dt/tau).*Ck(:,n-1);
+				% Now with dedicated function
+				Ck(:,n) = Ck(:,n-1)+dt*spectral(Ck(:,n-1),0,p);
+			end
+
+			% Transform it back
+			Cf = ifft(Ck);
+			CfSteady = Cf(:,end)/max(Cf(:,end));
+			res = CfSteady-CSteady;
+			errDts(j) = sum(abs(res))/N;
+			Cends(:,j) = Cf(:,end);
+		end
+		
+		f = figure(1);
+		f.Units = 'centimeter';
+		f.PaperSize = [7 5];
+		f.PaperPositionMode = 'manual';
+		f.PaperPosition = [0 0 f.PaperSize];
+		
+		ax = gca;
+		
+		plot(dts,errDts,'.')
+% 		xlabel('$\Delta t$')
+% 		ylabel('Normalized cummulative error')
+		ylabel('$\sum (|C-C_a|/N)$')
+
+		ax.XLim = [min(dts) max(dts)];
+ 		ax.XTick = dt0*[1/4 1/2 3/4 1];
+		ax.XTickLabel = {'$\Delta t/4$','$\Delta t/2$','$3\Delta t/4$','$\Delta t$'};
+		
+		% Now for changing N
+		Ns = 20:20:1000;
+		errNs = zeros(size(Ns));
+		
+		for j = 1:length(Ns)
+			% Initializing all the stuff
+			N = Ns(j);
+			x = linspace(-L/2,L/2,N);
+			x0 = x(ceil(N/2));
+			h = abs(x(1)-x(2));
+			dt = 2*tau*h^2/(10*4*D*tau+h^2);
+			nt = ceil(tend/dt);
+			t = zeros(1,nt);
+			Const = S/h*exp(-(x-x0).^2/(10^-2));
+			CSteady = exp(-abs(x-x0)'/(sqrt(tau*D))); 
+			C = zeros(N,nt);
+			C(:,1) = Const;
+			
+			Ck = fft(C);
+			k = kvalues(N)';
+			p = {k,D,tau,Ck(:,1)};
+			for n = 2:nt
+				t(n) = t(n-1)+dt;
+	% 			Ck(:,n) = dt*Ck(:,1)+(1-dt*D*k.^2-dt/tau).*Ck(:,n-1);
+				% Now with dedicated function
+				Ck(:,n) = Ck(:,n-1)+dt*spectral(Ck(:,n-1),0,p);
+			end
+
+			% Transform it back
+			Cf = ifft(Ck);
+			CfSteady = Cf(:,end)/max(Cf(:,end));
+			res = CfSteady-CSteady;
+			errNs(j) = sum(abs(res))/N;
+			
+% 			figure
+% 			plot(x,Cf(:,end))
+% 			title(sprintf('N=%d',N))
+		end
+		
+		f = figure(2);
+		f.Units = 'centimeter';
+		f.PaperSize = [7 5];
+		f.PaperPositionMode = 'manual';
+		f.PaperPosition = [0 0 f.PaperSize];
+		
+		ax = gca;
+		
+		plot(Ns,errNs,'.')
+% 		xlabel('$\Delta t$')
+% 		ylabel('Normalized cummulative error')
+		ylabel('$\sum (|C-C_a|/N)$')
+		
+		
+	end
+	
 	
 	if SpectralaRK4 == 1
 		% Let's initialize the stuff
@@ -207,7 +315,7 @@ if Spectral == 1
 		Ck = fft(C);
 		Ck2 = Ck;
 		k = kvalues(N)';
-		p = {k,D,tau,Ck2(:,1)};
+		p = {k,D,tau,Ck(:,1)};
 		
 		profile on
 		for q = 1:100
@@ -215,12 +323,12 @@ if Spectral == 1
 			t(n) = t(n-1)+dt;
 % 			Ck(:,n) = dt*Ck(:,1)+(1-dt*D*k.^2-dt/tau).*Ck(:,n-1);
 			% Now with dedicated function
-			Ck(:,n) = Ck2(:,n-1)+dt*spectral(Ck2(:,n-1),0,p);
+			Ck(:,n) = Ck(:,n-1)+dt*spectral(Ck(:,n-1),0,p);
 		end
 		end
 		prof1 = profile('info');
 		
-		[rn,cn] = find(strcmp({prof1.FunctionTable.FunctionName},'ass2'));
+		[~,cn] = find(strcmp({prof1.FunctionTable.FunctionName},'ass2'));
 		timeEuler = prof1.FunctionTable(cn).TotalTime;
 		profile clear
 		profile off
@@ -229,7 +337,7 @@ if Spectral == 1
 		for q = 1:100
 		% Now for the aRK4:
 		for n = 2:nt
-			[Ck2(:,n),~,dt2(n)] = rka(Ck2(:,n-1),t(n-1),dt2(n-1),Aerr,'spectral',p);
+			[Ck2(:,n),~,dt2(n)] = rka(Ck2(:,n-1),t2(n-1),dt2(n-1),Aerr,'spectral',p);
 			t2(n) =  t2(n-1)+dt2(n);
 			if t2(n) >= tend 
 % 				fprintf('done! %d of %d\n',n,nt)
@@ -238,7 +346,7 @@ if Spectral == 1
 		end
 		end
 		prof2 = profile('info');
-		[rn,cn] = find(strcmp({prof2.FunctionTable.FunctionName},'ass2'));
+		[~,cn] = find(strcmp({prof2.FunctionTable.FunctionName},'ass2'));
 		timeRK4 = prof2.FunctionTable(cn).TotalTime;
 		
 % 		timeaRK4 = prof.FunctionTable.TotalTime(1);
