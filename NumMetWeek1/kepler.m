@@ -5,13 +5,13 @@ clc
 % Control variables
 Euler           = 0;
 RungeKut        = 0;
-ArungeKut       = 0;
+ArungeKut       = 1;
 Aerr = 10^-5; % Desired fractional local truncation error for adaptive runge kutta
 
 plotEuler       = 0;
 plotRungeKut    = 0;
 plotAnal        = 0;
-plotARungeKut   = 0;
+plotARungeKut   = 1;
 plotError       = 0;
 
 % Shared variables:
