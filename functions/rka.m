@@ -1,9 +1,9 @@
-function [xSmall, t, tau] = rka(x,t,tau,err,derivsRK,param)
+function [xSmall, t, dt] = rka(x,t,dt,err,derivsRK,param)
 % Adaptive Runge-Kutta routine
 % Inputs
 %   x          Current value of the dependent variable
 %   t          Independent variable (usually time)
-%   tau        Step size (usually time step)
+%   dt        Step size (usually time step)
 %   err        Desired fractional local truncation error
 %   derivsRK   Right hand side of the ODE; derivsRK is the
 %              name of the function which returns dx/dt
@@ -12,7 +12,7 @@ function [xSmall, t, tau] = rka(x,t,tau,err,derivsRK,param)
 % Outputs
 %   xSmall     New value of the dependent variable
 %   t          New value of the independent variable
-%   tau        Suggested step size for next call to rka
+%   dt        Suggested step size for next call to rka
 
 %* Set initial variables
 tSave = t;  xSave = x;    % Save initial values
@@ -23,25 +23,25 @@ maxTry = 100;
 for iTry=1:maxTry
 	
   %* Take the two small time steps
-  half_tau = 0.5 * tau;
-  xTemp = rk4(xSave,tSave,half_tau,derivsRK,param);
-  t = tSave + half_tau;
-  xSmall = rk4(xTemp,t,half_tau,derivsRK,param);
+  half_dt = 0.5 * dt;
+  xTemp = rk4(xSave,tSave,half_dt,derivsRK,param);
+  t = tSave + half_dt;
+  xSmall = rk4(xTemp,t,half_dt,derivsRK,param);
   
   %* Take the single big time step
-  t = tSave + tau;
-  xBig = rk4(xSave,tSave,tau,derivsRK,param);
+  t = tSave + dt;
+  xBig = rk4(xSave,tSave,dt,derivsRK,param);
   
   %* Compute the estimated truncation error
   scale = err * (abs(xSmall) + abs(xBig))/2.;
   xDiff = xSmall - xBig;
   errorRatio = max( abs(xDiff)./(scale + eps) );
   
-  %* Estimate new tau value (including safety factors)
-  tau_old = tau;
-  tau = safe1*tau_old*errorRatio^(-0.20);
-  tau = max(tau,tau_old/safe2);
-  tau = min(tau,safe2*tau_old);
+  %* Estimate new dt value (including safety factors)
+  dt_old = dt;
+  dt = safe1*dt_old*errorRatio^(-0.20);
+  dt = max(dt,dt_old/safe2);
+  dt = min(dt,safe2*dt_old);
   
   %* If error is acceptable, return computed values
   if (errorRatio < 1)  return;  end 
