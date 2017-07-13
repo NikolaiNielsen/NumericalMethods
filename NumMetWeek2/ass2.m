@@ -1,14 +1,19 @@
 clear all; close all; clc
+profile on
+profile clear
+profile off
 
 % New differential equaiton:
 % dudt = Sdelta(x-x0) + D d^2udx^2-u/tau;
 
 % Control Variables
-Simple = 1;
+Simple = 0;
 VonNeumann = 0;
 Spectral = 1;
 SpectralNoSource = 0;
 Cyclic = 1;
+SpectralErr = 1;
+SpectralaRK4 = 1;
 
 % Desired fractional local truncation error for adaptive runge kutta
 Aerr = 10^-5;
@@ -16,6 +21,8 @@ Aerr = 10^-5;
 % For Von Neumann
 NVdt = 1+[-1,1]*10^-3;
 NVtend = 100;
+
+
 
 % some constants
 L = 2*pi;
@@ -153,6 +160,40 @@ if Spectral == 1
 		dt = dtMult*2*tau*h^2/(4*D*tau+h^2);
 		nt = ceil(tend/dt);
 		t = zeros(1,nt);
+
+		C = zeros(N,nt);
+		% Initial condition. Can't use a deltafunction, because that fucks
+		% it up... sharply peaked gaussian function instead.
+		C(:,1) = S/h*exp(-(x-x0).^2/(10^-2));
+
+		% Fourier transform it
+		Ck = fft(C);
+		k = kvalues(N)';
+		p = {k,D,tau,Ck2(:,1)};
+		for n = 2:nt
+			t(n) = t(n-1)+dt;
+% 			Ck(:,n) = dt*Ck(:,1)+(1-dt*D*k.^2-dt/tau).*Ck(:,n-1);
+			% Now with dedicated function
+			Ck(:,n) = Ck2(:,n-1)+dt*spectral(Ck2(:,n-1),0,p);
+		end
+		
+		
+		% Transform it back
+		Cf = ifft(Ck);
+		
+		% figures
+		figure
+		surf(x,t2,Cf2')
+		shading interp
+		
+		
+	end
+	
+	if SpectralaRK4 == 1
+		% Let's initialize the stuff
+		dt = dtMult*2*tau*h^2/(4*D*tau+h^2);
+		nt = ceil(tend/dt);
+		t = zeros(1,nt);
 		t2 = t;
 		dt2 = t;
 		dt2(1) = dt;
@@ -167,23 +208,43 @@ if Spectral == 1
 		Ck2 = Ck;
 		k = kvalues(N)';
 		p = {k,D,tau,Ck2(:,1)};
+		
+		profile on
+		for q = 1:100
 		for n = 2:nt
 			t(n) = t(n-1)+dt;
 % 			Ck(:,n) = dt*Ck(:,1)+(1-dt*D*k.^2-dt/tau).*Ck(:,n-1);
 			% Now with dedicated function
 			Ck(:,n) = Ck2(:,n-1)+dt*spectral(Ck2(:,n-1),0,p);
-			Ck2(:,n) = rk4(Ck2(:,n-1),t(n-1),dt,'spectral',p);
 		end
+		end
+		prof1 = profile('info');
 		
+		[rn,cn] = find(strcmp({prof1.FunctionTable.FunctionName},'ass2'));
+		timeEuler = prof1.FunctionTable(cn).TotalTime;
+		profile clear
+		profile off
+		
+		profile on
+		for q = 1:100
 		% Now for the aRK4:
 		for n = 2:nt
 			[Ck2(:,n),~,dt2(n)] = rka(Ck2(:,n-1),t(n-1),dt2(n-1),Aerr,'spectral',p);
 			t2(n) =  t2(n-1)+dt2(n);
 			if t2(n) >= tend 
-				fprintf('done! %d of %d\n',n,nt)
-				break; 
+% 				fprintf('done! %d of %d\n',n,nt)
+				break
 			end
 		end
+		end
+		prof2 = profile('info');
+		[rn,cn] = find(strcmp({prof2.FunctionTable.FunctionName},'ass2'));
+		timeRK4 = prof2.FunctionTable(cn).TotalTime;
+		
+% 		timeaRK4 = prof.FunctionTable.TotalTime(1);
+		profile clear
+		profile off
+		
 		t2 = t2(1:n);
 		dt2 = dt2(1:n);
 		Ck2 = Ck2(:,1:n);
@@ -191,6 +252,8 @@ if Spectral == 1
 		% Transform it back
 		Cf = ifft(Ck);
 		Cf2 = ifft(Ck2);
+		
+		% figures
 		figure
 		surf(x,t2,Cf2')
 		shading interp
@@ -199,9 +262,3 @@ if Spectral == 1
 	end
 	
 end
-
-% Res = Csimple - Cf;
-% figure
-% for i = 1:length(Res)
-% 	
-% end
