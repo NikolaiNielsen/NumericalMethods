@@ -10,6 +10,9 @@ Spectral = 1;
 SpectralNoSource = 0;
 Cyclic = 1;
 
+% Desired fractional local truncation error for adaptive runge kutta
+Aerr = 10^-5;
+
 % For Von Neumann
 NVdt = 1+[-1,1]*10^-3;
 NVtend = 100;
@@ -150,6 +153,9 @@ if Spectral == 1
 		dt = dtMult*2*tau*h^2/(4*D*tau+h^2);
 		nt = ceil(tend/dt);
 		t = zeros(1,nt);
+		t2 = t;
+		dt2 = t;
+		dt2(1) = dt;
 
 		C = zeros(N,nt);
 		% Initial condition. Can't use a deltafunction, because that fucks
@@ -166,11 +172,27 @@ if Spectral == 1
 % 			Ck(:,n) = dt*Ck(:,1)+(1-dt*D*k.^2-dt/tau).*Ck(:,n-1);
 			% Now with dedicated function
 			Ck(:,n) = Ck2(:,n-1)+dt*spectral(Ck2(:,n-1),0,p);
+			Ck2(:,n) = rk4(Ck2(:,n-1),t(n-1),dt,'spectral',p);
 		end
-		Cf = (ifft(Ck));
+		
+		% Now for the aRK4:
+		for n = 2:nt
+			[Ck2(:,n),~,dt2(n)] = rka(Ck2(:,n-1),t(n-1),dt2(n-1),Aerr,'spectral',p);
+			t2(n) =  t2(n-1)+dt2(n);
+			if t2(n) >= tend 
+				fprintf('done! %d of %d\n',n,nt)
+				break; 
+			end
+		end
+		t2 = t2(1:n);
+		dt2 = dt2(1:n);
+		Ck2 = Ck2(:,1:n);
+		
+		% Transform it back
+		Cf = ifft(Ck);
 		Cf2 = ifft(Ck2);
 		figure
-		surf(x,t,Cf2')
+		surf(x,t2,Cf2')
 		shading interp
 		
 		
@@ -178,8 +200,8 @@ if Spectral == 1
 	
 end
 
-Res = Csimple - Cf;
-figure
-for i = 1:length(Res)
-	
-end
+% Res = Csimple - Cf;
+% figure
+% for i = 1:length(Res)
+% 	
+% end
