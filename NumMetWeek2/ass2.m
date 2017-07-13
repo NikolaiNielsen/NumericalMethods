@@ -154,19 +154,26 @@ if Spectral == 1
 		C = zeros(N,nt);
 		% Initial condition. Can't use a deltafunction, because that fucks
 		% it up... sharply peaked gaussian function instead.
-		C(:,1) = 1/h*exp(-(x-x0).^2/(10^-2));
+		C(:,1) = S/h*exp(-(x-x0).^2/(10^-2));
 
 		% Fourier transform it
 		Ck = fft(C);
+		Ck2 = Ck;
 		k = kvalues(N)';
+		p = {k,D,tau,Ck2(:,1)};
 		for n = 2:nt
 			t(n) = t(n-1)+dt;
-			Ck(:,n) = dt*Ck(:,1)+(1-dt*D*k.^2-dt/tau).*Ck(:,n-1); 
+% 			Ck(:,n) = dt*Ck(:,1)+(1-dt*D*k.^2-dt/tau).*Ck(:,n-1);
+			% Now with dedicated function
+			Ck(:,n) = Ck2(:,n-1)+dt*spectral(Ck2(:,n-1),0,p);
 		end
 		Cf = (ifft(Ck));
+		Cf2 = ifft(Ck2);
 		figure
-		surf(x,t,Cf')
+		surf(x,t,Cf2')
 		shading interp
+		
+		
 	end
 	
 end
