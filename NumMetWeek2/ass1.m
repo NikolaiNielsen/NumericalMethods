@@ -2,7 +2,7 @@ clear all; close all; clc
 
 
 % Control variables
-Simple = 0;
+Simple = 1;
 ErrDt = 0;
 ErrH = 0;
 VonNeumann = 0;
@@ -27,7 +27,7 @@ L = 2*pi;
 N0 = 128;
 D = 0.1;
 tend = 1;
-dtMult = 2;
+dtMult = 4;
 
 % Creating the differentiation matrix
 % First we create the ones above the diagonal

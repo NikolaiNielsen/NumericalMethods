@@ -70,14 +70,14 @@
 	\end{cases}, \ (\text{for equal } N).
 	\end{equation}
 	
-	To compare the numerical and analytical solutions, the following values are used: $D = 0.1, L = 2\pi,N=128 $, with $ h=L/(N-1) $ as this is the spacing MATLAB uses with the \texttt{linspace} function, and $ \Delta t = h^2/4D $. The positions after $ t = 1 $ are plotted, along with the difference between the two solutions
+	To compare the numerical and analytical solutions, the following values are used: $D = 0.1, L = 2\pi,N=128 $, with $ h=L/(N-1) $ as this is the spacing MATLAB uses with the \texttt{linspace} function, and $ \Delta t = h^2/8D $. The positions after $ t = 1 $ are plotted, along with the difference between the two solutions
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width = 0.5\linewidth]{diffSimple.pdf}
 		\caption{The numerical (blue line) and analytical (orange points) solutions to the diffusion equation for a delta function initial condition. An inset of the difference between the numerical and analytical solutions is also shown.}
 		\label{fig:diffSimple}
 	\end{figure}
-	The analytical and numerical solution to the differential equation are in agreement, with a max difference of $ 2.04\D10^{-3} $. However, at the edges of the simulation, where both solutions are approximately zero, the fractional error does exceed 0.5 at places.
+	The analytical and numerical solution to the differential equation are in agreement, with a max difference of $ 4.82\D10^{-4} $. However, at the edges of the simulation, where both solutions are approximately zero, the fractional error does exceed 0.3 at places.
 	
 	Next the relation between error, grid size and time step size is explored. However, comparing errors between simulations with different grid sizes becomes difficult, as this does not allow for easy plotting. Therefore the error on the final time step is summed up and divided by the number of points to normalize the error. First the simulation is run with 128 points, for 1 unit of time, with 100 linearly spaced values of $ \Delta t $ between $ \Delta t_0 = h^2/2D $ and $ h^2/100D $. Next the simulation is run with between 20 and 1000 points in increments of 20, with $ \Delta t = h^2/4D $, where $ h = L/(N-1) $, to satisfy the stability condition. The results are shown in the figures below:
 	 
@@ -133,11 +133,6 @@
 	
 	For this exercise both FTCS and a new method, called the Spectral Method, will be used. The Spectral Method uses discrete Fourier Transformation to convert a PDE to an ODE, allowing the use of simple Euler integration, and then just inverse Fourier transformation at the desired timestep. Now, due to the way MATLAB handles its discrete Fourier Transforms, only even values of $ N $ can be used. Because of this, the source point $ x_0 = x_{N/2} $ is chosen, which has the value $ x_0 = -h/2 $.
 	
-	Furthermore, Fourier transforming a delta-function results in a complex wave $ e^{-ikx_0} $, and for some reason (maybe because the "wave number" is $ x_0 = -h/2 $), this causes the spectral method to explode for any $ \Delta t $ (even $ \Delta t = 5\D10^{-4}\D \Delta t_0 $, for the new value of $ \Delta t_0$ in this problem). To combat this, a different initial condition is used: a not too sharply peaked Gaussian function. This is an appropriate approximation, as the delta function can be defined as the limit of the Unitary Gaussian for $ \sigma \to 0 $. In practice the following is used
-	\begin{equation}\label{key}
-		\delta (x-x_0) \to \frac{1}{h} \exp\pp{-\frac{(x-x_0)^2}{10^{-2}}}.
-	\end{equation} 
-	This will of course give a larger error when comparing the numerical and analytical solutions, as they no longer solve the same problem.
 	
 	\subsection{von Neumann stability}
 	The new integration scheme is
@@ -191,9 +186,39 @@
 	\end{figure}
 	The numerical and analytical solutions are in agreement, except at the edges. This is due to the value of the function not going to zero at the edges, which means that the Fourier transformed function in reality is the desired function modulated by a square function, which changes the Fourier transform.
 	
-	\subsubsection{Solving the diffusion equation}
+	\subsubsection{Solving the simple diffusion problem}
+	To solve the problem using the spectral method, the whole equation has to be Fourier transformed into $ k $-space. The right hand side just becomes $ -Dk^2 C(k,t) $, but Fourier transforming the initial condition, a delta-function, results in a complex wave $ e^{-ikx_0} $, and for some reason (maybe because the "wave number" is $ x_0 = -h/2 $), this causes the spectral method to explode for any $ \Delta t $ (even $ \Delta t = 5\D10^{-4}\D \Delta t_0 $). To combat this, a different initial condition is used: a not too sharply peaked Gaussian function. This is an appropriate approximation, as the delta function can be defined as the limit of the normalized Gaussian for $ \sigma \to 0 $. Here $ \sigma > h $ for there to be any difference between the Gaussian and a delta function. For the problem $ \sigma = 1.5h $ is used.
+ 	
+	This will of course give a larger error when comparing the numerical and analytical solutions, as they no longer solve the same problem. Comparing the two solutions is done as in the first assignment, with the two plotted together and their difference plotted in an inset, for the same $ \Delta t,N $ and ending time ($ t=1 $):
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width = 0.5\linewidth]{spectralSimple.pdf}
+		\caption{The numerical (blue line) and analytical (orange points) solutions to the diffusion equation for a delta function initial condition. An inset of the difference between the numerical and analytical solutions is also shown.}
+		\label{fig:spectralSimple}
+	\end{figure}
+	where the largest absolute difference is 0.0197, and the largest fractional difference is 436. This means that any gains in using the spectral method are severely limited due to the change in initial condition. For a more fair comparison, the FTCS method is also run with this new initial condition:
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width = 0.5\linewidth]{newSimple.pdf}
+		\caption{The simple diffusion problem in FTCS, but with a Gaussian-function initial condition}
+		\label{fig:newSimple}
+	\end{figure}
+	where the largest absolute difference here is 0.0118 and the largest fractional difference is 1.25. So again, FTCS wins for the simple diffusion problem.
 	
 	
+	\subsubsection{Diffusion with constant source using the spectral method}
+	For the problem with constant source and decay, the decay-term is unaffected by the transformation, and the constant source is changed from a delta function to the Gaussian function used in before.
+	
+	The error, as a function of $ N $ is calculated as in the previous problem (normalized, cummulative absolute error in space), and to provide a proper comparison between FTCS and the spectral method, the calculations are also performed using FTCS:
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.7\linewidth]{spectralError.pdf}
+		\caption{Plots of the normalized cumulative error as a function of grid resolution $ N $ for the spectral (blue) and FTCS (orange) methods.}
+		\label{fig:spectralError}
+	\end{figure}
+	As seen in the figure, FTCS beats the spectral method until around $ N = 10^2 $, at which FTCS actually starts to increase! This is most likely due to the change from a delta function to a Gaussian.
+	
+	\subsubsection{Performance of Euler and aRK4 methods for the spectral method}
 	
 \end{document}
 

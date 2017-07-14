@@ -7,14 +7,14 @@ profile off
 % dudt = Sdelta(x-x0) + D d^2udx^2-u/tau;
 
 % Control Variables
-Simple = 1;
+Simple = 0;
 VonNeumann = 0;
-Spectral = 0;
+Spectral = 1;
 SpectralNoSource = 0;
 Cyclic = 1;
-SpectralErr = 0;
+SpectralErr = 1;
 SpectralaRK4 = 0;
-
+simN = 0;
 % Desired fractional local truncation error for adaptive runge kutta
 Aerr = 10^-5;
 
@@ -159,28 +159,83 @@ end
 if Spectral == 1	
 	% first the simple case
 	if SpectralNoSource == 1
+        AnalDelta = @(x,t) 1/(sqrt(2*D*t*2*pi))*exp(-((x-x0).^2)/(4*D*t));
 		
+        
 		% Let's initialize the stuff
-		dt = h^2/(5*D);
+		dt = h^2/(8*D);
 		nt = ceil(tend/dt);
 		t = zeros(1,nt);
-
+        T = D*dt/(h^2)*(diag1-2*diag2+diag3);
+        
 		C = zeros(N,nt);
 		% Initial condition. Can't use a deltafunction, because that fucks
 		% it up... sharply peaked gaussian function instead.
-		C(:,1) = 1/h*exp(-(x-x0).^2/(10^-2));
-
+        sig = 1.5*h;
+		C(:,1) = 1/(sig*sqrt(2*pi))*exp(-(x-x0).^2/(2*sig^2));
+        Cs = C;
 		% Fourier transform it
 		Ck = fft(C);
 		k = kvalues(N)';
 		for n = 2:nt
 			t(n) = t(n-1)+dt;
-			Ck(:,n) = Ck(:,n-1)-k.^2*D*dt.*Ck(:,n-1); 
-		end
+			Ck(:,n) = Ck(:,n-1)-k.^2*D*dt.*Ck(:,n-1);
+            Cs(:,n) = Cs(:,n-1)+T*Cs(:,n-1);
+        end
+        CAnal = AnalDelta(x,t(end));
 		Cf = (ifft(Ck));
-		figure
-		surf(x,t,Cf')
-		shading interp
+		res = (Cf(:,end)-CAnal');
+        perc = abs(res)./CAnal';
+        resS = (Cs(:,end)-CAnal');
+        percS = abs(resS)./CAnal';
+        
+        f = figure;
+        f.Units = 'centimeter';
+        f.PaperSize = [7 3];
+        f.PaperPositionMode = 'manual';
+        f.PaperPosition = [0 0 7 3];
+        hold on
+        ax = gca;
+        plot(x,Cf(:,end))
+        plot(x(2:2:128),CAnal(2:2:128),'.')
+        ax.XLim = [-L/2 L/2];
+        xlabel('$x$')
+        ylabel('$C(x,t=1)$')
+
+        hold off
+
+        ax = axes('Position',[0.77 0.525 0.2 0.3]);
+        plot(x,res)
+        ax.XLim = [-L/2 L/2];
+%         ax.YLim = [-3*10^-3 2*10^-3];
+        ax.XTick = [];
+
+        print('spectralSimple','-dpdf')
+        
+        
+        f = figure;
+        f.Units = 'centimeter';
+        f.PaperSize = [7 3];
+        f.PaperPositionMode = 'manual';
+        f.PaperPosition = [0 0 7 3];
+        hold on
+        ax = gca;
+        plot(x,Cs(:,end))
+        plot(x(2:2:128),CAnal(2:2:128),'.')
+        ax.XLim = [-L/2 L/2];
+        xlabel('$x$')
+        ylabel('$C(x,t=1)$')
+
+        hold off
+
+        ax = axes('Position',[0.77 0.525 0.2 0.3]);
+        plot(x,resS)
+        ax.XLim = [-L/2 L/2];
+%         ax.YLim = [-3*10^-3 2*10^-3];
+        ax.XTick = [];
+
+        print('newSimple','-dpdf')
+        close all
 	end
 	
 	
@@ -194,7 +249,8 @@ if Spectral == 1
 		C = zeros(N,nt);
 		% Initial condition. Can't use a deltafunction, because that fucks
 		% it up... sharply peaked gaussian function instead.
-		C(:,1) = S/h*exp(-(x-x0).^2/(10^-2));
+		sig = 1.5*h;
+		C(:,1) = 1/(sig*sqrt(2*pi))*exp(-(x-x0).^2/(2*sig^2));
 
 		% Fourier transform it
 		Ck = fft(C);
@@ -223,58 +279,60 @@ if Spectral == 1
 		dt0 = 2*tau*h^2/(4*D*tau+h^2);
 		dts = linspace(dt0,dt0/5,100);
 		
-		Const = S/h*exp(-(x-x0).^2/(10^-2));
+		sig = 1.5*h;
+		Const = 1/(sig*sqrt(2*pi))*exp(-(x-x0).^2/(2*sig^2));
 		CSteady = exp(-abs(x-x0)'/(sqrt(tau*D)));
 		errDts = zeros(size(dts));
 		Cends = zeros(N,length(dts));
 		
-		for j = 1:length(dts)
-			dt = dts(j);
-			nt = ceil(tend/dt);
-			t = zeros(1,nt);
-			C = zeros(N,nt);
-			C(:,1) = Const;
-
-			% Fourier transform it
-			Ck = fft(C);
-			k = kvalues(N)';
-			p = {k,D,tau,Ck(:,1)};
-			for n = 2:nt
-				t(n) = t(n-1)+dt;
-	% 			Ck(:,n) = dt*Ck(:,1)+(1-dt*D*k.^2-dt/tau).*Ck(:,n-1);
-				% Now with dedicated function
-				Ck(:,n) = Ck(:,n-1)+dt*spectral(Ck(:,n-1),0,p);
-			end
-
-			% Transform it back
-			Cf = ifft(Ck);
-			CfSteady = Cf(:,end)/max(Cf(:,end));
-			res = CfSteady-CSteady;
-			errDts(j) = sum(abs(res))/N;
-			Cends(:,j) = Cf(:,end);
-		end
-		
-		f = figure(1);
-		f.Units = 'centimeter';
-		f.PaperSize = [7 5];
-		f.PaperPositionMode = 'manual';
-		f.PaperPosition = [0 0 f.PaperSize];
-		
-		ax = gca;
-		
-		plot(dts,errDts,'.')
-% 		xlabel('$\Delta t$')
-% 		ylabel('Normalized cummulative error')
-		ylabel('$\sum (|C-C_a|/N)$')
-
-		ax.XLim = [min(dts) max(dts)];
- 		ax.XTick = dt0*[1/4 1/2 3/4 1];
-		ax.XTickLabel = {'$\Delta t/4$','$\Delta t/2$','$3\Delta t/4$','$\Delta t$'};
+% 		for j = 1:length(dts)
+% 			dt = dts(j);
+% 			nt = ceil(tend/dt);
+% 			t = zeros(1,nt);
+% 			C = zeros(N,nt);
+% 			C(:,1) = Const;
+% 
+% 			% Fourier transform it
+% 			Ck = fft(C);
+% 			k = kvalues(N)';
+% 			p = {k,D,tau,Ck(:,1)};
+% 			for n = 2:nt
+% 				t(n) = t(n-1)+dt;
+% 	% 			Ck(:,n) = dt*Ck(:,1)+(1-dt*D*k.^2-dt/tau).*Ck(:,n-1);
+% 				% Now with dedicated function
+% 				Ck(:,n) = Ck(:,n-1)+dt*spectral(Ck(:,n-1),0,p);
+% 			end
+% 
+% 			% Transform it back
+% 			Cf = ifft(Ck);
+% 			CfSteady = Cf(:,end)/max(Cf(:,end));
+% 			res = CfSteady-CSteady;
+% 			errDts(j) = sum(abs(res))/N;
+% 			Cends(:,j) = Cf(:,end);
+% 		end
+% 		
+% 		f = figure(1);
+% 		f.Units = 'centimeter';
+% 		f.PaperSize = [7 5];
+% 		f.PaperPositionMode = 'manual';
+% 		f.PaperPosition = [0 0 f.PaperSize];
+% 		
+% 		ax = gca;
+% 		
+% 		plot(dts,errDts,'.')
+% % 		xlabel('$\Delta t$')
+% % 		ylabel('Normalized cummulative error')
+% 		ylabel('$\sum (|C-C_a|/N)$')
+% 
+% 		ax.XLim = [min(dts) max(dts)];
+%  		ax.XTick = dt0*[1/4 1/2 3/4 1];
+% 		ax.XTickLabel = {'$\Delta t/4$','$\Delta t/2$','$3\Delta t/4$','$\Delta t$'};
 		
 		% Now for changing N
 		Ns = 20:20:1000;
 		errNs = zeros(size(Ns));
-		
+        errNs2 = errNs;
+		if simN == 1
 		for j = 1:length(Ns)
 			% Initializing all the stuff
 			N = Ns(j);
@@ -284,10 +342,25 @@ if Spectral == 1
 			dt = 2*tau*h^2/(10*4*D*tau+h^2);
 			nt = ceil(tend/dt);
 			t = zeros(1,nt);
-			Const = S/h*exp(-(x-x0).^2/(10^-2));
+			sig = 1.5*h;
+            Const = 1/(sig*sqrt(2*pi))*exp(-(x-x0).^2/(2*sig^2));
 			CSteady = exp(-abs(x-x0)'/(sqrt(tau*D))); 
 			C = zeros(N,nt);
 			C(:,1) = Const;
+            
+            % Stuff for the comparison
+            Cs = C;
+            % Creating the differentiation matrix
+            % First we create the ones above the diagonal
+            diag1 = diag(ones(N-1,1),1);
+            % Then the main diagonal (-2)
+            diag2 = diag(ones(N,1));
+            % And the ones below the diagonal
+            diag3 = diag(ones(N-1,1),-1);
+            cyclic = zeros(N);
+            cyclic(1,N) = Cyclic;
+            cyclic(N,1) = Cyclic;
+            T = (1-dt/tau-2*D*dt/h^2)*diag2+D*dt/(h^2)*(diag1+diag3+cyclic);
 			
 			Ck = fft(C);
 			k = kvalues(N)';
@@ -297,31 +370,45 @@ if Spectral == 1
 	% 			Ck(:,n) = dt*Ck(:,1)+(1-dt*D*k.^2-dt/tau).*Ck(:,n-1);
 				% Now with dedicated function
 				Ck(:,n) = Ck(:,n-1)+dt*spectral(Ck(:,n-1),0,p);
+                Cs(:,n) = T*Cs(:,n-1)+Const';
 			end
 
 			% Transform it back
 			Cf = ifft(Ck);
 			CfSteady = Cf(:,end)/max(Cf(:,end));
+            CsSteady = Cs(:,end)/max(Cs(:,end));
 			res = CfSteady-CSteady;
+            res2 = CsSteady-CSteady;
 			errNs(j) = sum(abs(res))/N;
+            errNs2(j) = sum(abs(res2))/N;
 			
 % 			figure
 % 			plot(x,Cf(:,end))
 % 			title(sprintf('N=%d',N))
-		end
-		
+            save('SpectralErrors','Ns','errNs','errNs2')
+        end
+        end
+        
+        load('SpectralErrors')
 		f = figure(2);
 		f.Units = 'centimeter';
-		f.PaperSize = [7 5];
+		f.PaperSize = [10 5];
 		f.PaperPositionMode = 'manual';
 		f.PaperPosition = [0 0 f.PaperSize];
-		
+	
 		ax = gca;
-		
+		hold on
+%         Fit = fit(Ns',errNs','a*x^b');
 		plot(Ns,errNs,'.')
-% 		xlabel('$\Delta t$')
+        plot(Ns,errNs2,'.')
+%         plot(Fit)
+		xlabel('$N$')
 % 		ylabel('Normalized cummulative error')
 		ylabel('$\sum (|C-C_a|/N)$')
+        ax.XScale = 'log';
+        ax.YScale = 'log';
+        legend('Spectral Method','FTCS method','Location','EastOutside')
+        print('spectralError','-dpdf')
 		
 		
 	end
