@@ -218,7 +218,21 @@
 	\end{figure}
 	As seen in the figure, FTCS beats the spectral method until around $ N = 10^2 $, at which FTCS actually starts to increase! This is most likely due to the change from a delta function to a Gaussian.
 	
+	
 	\subsubsection{Performance of Euler and aRK4 methods for the spectral method}
+	Lastly the performance of the adaptive, 4th order Runge-Kutta is compared to that of the Euler method. This is done by running the simulation for each of the methods 1000 times while using MATLABs profiler tool, to measure the time spent on each of these methods. The high number of repetitions is chosen to make sure that the accuracy of the time measurement is good enough for comparison.
+	
+	A baseline $ \Delta t = \Delta t_0 /2$ is chosen, along with $ N=128 $ and a stop time of $ t=1 $. In this configuration the Euler method took 1.11 seconds, performing 164000 calls to the "spectral" function, which calculates the derivatives. This corresponds to 165 datapoints in time per run (the initial, plus 164 iterations). The adaptive Runge-Kutta took 30.50 seconds, on the other hand, with 120 iterations per run and 1668000 calls to the function "spectral". This is a 27-fold increase in runtime and a 10-fold increase in the number of calculations. The discrepancy between these two numbers is due to the extra calculations performed for the adaptive Runge-Kutta.
+	
+	As for the actual accuracy. The normalized cumulative error for the Euler method is 0.6359, while it is 0.0201 for the adaptive Runge-Kutta method, which is a 31-fold increase in accuracy. This is also evident, if one looks at the value of $ \Delta t $ for the adaptive Runge-Kutta:
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width = 0.5\linewidth]{Spectraldt.pdf}
+		\caption{$ \Delta t $ as a function of index for the adaptive Runge-Kutta (blue) method. The baseline $ \Delta t $ is inlaid as the horizontal orange line.}
+		\label{fig:Spectraldt}
+	\end{figure}
+	As seen, for the first half of the simulation, the time step is significantly lower than the baseline. This is due to the high derivative of the function (in time). When the Euler method is run with this time step size, a rather large error accumulates, which the adaptive Runge-Kutta solves. Worth noting is that the point at which the steady state is reached is clearly evident from the graph, as this is where the step size oscillates.
 	
 \end{document}
 

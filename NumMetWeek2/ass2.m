@@ -12,8 +12,8 @@ VonNeumann = 0;
 Spectral = 1;
 SpectralNoSource = 0;
 Cyclic = 1;
-SpectralErr = 1;
-SpectralaRK4 = 0;
+SpectralErr = 0;
+SpectralaRK4 = 1;
 simN = 0;
 % Desired fractional local truncation error for adaptive runge kutta
 Aerr = 10^-5;
@@ -427,6 +427,7 @@ if Spectral == 1
 		% Initial condition. Can't use a deltafunction, because that fucks
 		% it up... sharply peaked gaussian function instead.
 		C(:,1) = S/h*exp(-(x-x0).^2/(10^-2));
+        CSteady = exp(-abs(x-x0)'/(sqrt(tau*D))); 
 
 		% Fourier transform it
 		Ck = fft(C);
@@ -435,7 +436,7 @@ if Spectral == 1
 		p = {k,D,tau,Ck(:,1)};
 		
 		profile on
-		for q = 1:100
+		for q = 1:1000
 		for n = 2:nt
 			t(n) = t(n-1)+dt;
 % 			Ck(:,n) = dt*Ck(:,1)+(1-dt*D*k.^2-dt/tau).*Ck(:,n-1);
@@ -451,7 +452,7 @@ if Spectral == 1
 		profile off
 		
 		profile on
-		for q = 1:100
+		for q = 1:1000
 		% Now for the aRK4:
 		for n = 2:nt
 			[Ck2(:,n),~,dt2(n)] = rka(Ck2(:,n-1),t2(n-1),dt2(n-1),Aerr,'spectral',p);
@@ -478,12 +479,35 @@ if Spectral == 1
 		Cf = ifft(Ck);
 		Cf2 = ifft(Ck2);
 		
+        CSteady = exp(-abs(x-x0)'/(sqrt(tau*D))); 
+        CfSteady = Cf(:,end)/max(Cf(:,end));
+        res = CfSteady-CSteady;
+        err1 = sum(abs(res))/N;
+        Cf2Steady = Cf2(:,end)/max(Cf2(:,end));
+        res2 = Cf2Steady-CSteady;
+        err2 = sum(abs(res2))/N;
+        
 		% figures
-		figure
-		surf(x,t2,Cf2')
-		shading interp
 		
 		
 	end
 	
 end
+
+%%
+f = figure(1);
+f.Units = 'centimeter';
+f.PaperSize = [7 5];
+f.PaperPositionMode = 'manual';
+f.PaperPosition = [0 0 f.PaperSize];
+
+ax = gca;
+hold on
+plot(dt2)
+plot([1 length(dt2)],[dt dt])
+ylabel('$\Delta t$')
+ax.XLim = [0 length(dt2)];
+
+print('Spectraldt','-dpdf')
+hold off
+close(1)
