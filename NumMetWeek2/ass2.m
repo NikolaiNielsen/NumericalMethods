@@ -7,20 +7,20 @@ profile off
 % dudt = Sdelta(x-x0) + D d^2udx^2-u/tau;
 
 % Control Variables
-Simple = 0;
+Simple = 1;
 VonNeumann = 0;
-Spectral = 1;
+Spectral = 0;
 SpectralNoSource = 0;
 Cyclic = 1;
-SpectralErr = 1;
+SpectralErr = 0;
 SpectralaRK4 = 0;
 
 % Desired fractional local truncation error for adaptive runge kutta
 Aerr = 10^-5;
 
 % For Von Neumann
-NVdt = 1+[-1,1]*10^-3;
-NVtend = 100;
+NVdt = 1+[-1,1]*10^-2;
+NVtend = 10;
 
 
 
@@ -28,8 +28,8 @@ NVtend = 100;
 L = 2*pi;
 N = 128; % USE AN ODD NUMBER OF POINTS - BUT NOT FOR SPECTRAL...
 D = 0.1;
-tend = 0.1;
-dtMult = 1/4;
+tend = 1;
+dtMult = 1/2;
 S = 1;
 tau = 1;
 
@@ -66,7 +66,6 @@ if Simple == 1
 	
 	% Does all the differentiation. (1-dt/tau)*u+(d^2/dt^2)u.
 	T = (1-dt/tau-2*D*dt/h^2)*diag2+D*dt/(h^2)*(diag1+diag3+cyclic);
-
 	CSteady = exp(-abs(x-x0)'/(sqrt(tau*D)));
 	res(:,1) = C(:,1)-CSteady;
 
@@ -74,18 +73,36 @@ if Simple == 1
 
 		t(i) = t(i-1)+dt;
 		C(:,i) =T*C(:,i-1)+const;
-		res(:,i) = C(:,i)-CSteady;
+		res(:,i) = C(:,i)/max(C(:,i))-CSteady;
 	end
 
-	figure
+	f = figure(1);
+	f.Units = 'centimeter';
+	f.PaperSize = [7 3];
+	f.PaperPositionMode = 'manual';
+	f.PaperPosition = [0 0 7 3];
 	hold on
-	plot(x,CSteady,'.')
+	plot(x(2:2:128),CSteady(2:2:128),'.')
 	plot(x,C(:,end)/max(C(:,end)))
-	legend('Steady-state','Numerical')
+	xlabel('$x$')
+	ylabel('$C/C(x_0)$')
+% 	legend('Steady-state','Numerical')
 	hold off
-	figure
-	surf(x,t,C')
-	shading interp
+	
+	ax = axes('Position',[0.75 0.525 0.2 0.3]);
+	plot(x,res(:,end))
+	ax.XLim = [-L/2 L/2];
+% 	ax.YLim = [m];
+	ax.XTick = [];
+	
+	print('diffSource','-dpdf')
+	close(1)
+	
+	
+	
+% 	figure
+% 	surf(x,t,C')
+% 	shading interp
 	Csimple = C;
 end
 
@@ -118,12 +135,25 @@ if VonNeumann == 1
 		CNV(:,j) = C(:,end);
 	end
 	
-	figure
+	f = figure(1);
+	f.Units = 'centimeter';
+	f.PaperSize = [20,6];
+	f.PaperPositionMode = 'manual';
+	f.PaperPosition = [0 0 f.PaperSize];
+	
 	subplot(1,2,1)
 	plot(x,CNV(:,1))
+	xlabel('$x$')
+	ylabel('$C$')
 	
 	subplot(1,2,2)
 	plot(x,CNV(:,2))
+	xlabel('$x$')
+	ylabel('$C$')
+	
+	
+	print('vonNeumann2','-dpdf')
+	close(1)
 end
 
 if Spectral == 1	

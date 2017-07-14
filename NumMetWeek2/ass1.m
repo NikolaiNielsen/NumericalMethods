@@ -3,19 +3,19 @@ clear all; close all; clc
 
 % Control variables
 Simple = 0;
-ErrDt = 1;
-ErrH = 1;
+ErrDt = 0;
+ErrH = 0;
 VonNeumann = 0;
 
 plotBoth = 1;
 
 % Error as a function of dt
 simDt = 1;
-plotDt = 0;
+plotDt = 1;
 
 % Error as a function of N
 simH = 1;
-plotH = 0;
+plotH = 1;
 
 % Von Neumann stuff
 NVtend = 10;
@@ -227,6 +227,7 @@ if ErrH == 1
 		end
 		ts(j) = t(end);
 		errNs(j) = sum(abs(res(:,end)))/N;
+% 		errNs(j) = max(abs(res(:,end)));
 		fprintf('ErrH: run %d done\n',j)
 	end	
 	save('DiffErrN','errNs','ts','Ns')
@@ -271,12 +272,25 @@ if VonNeumann == 1
 		end
 		Cend(:,j) = C(:,end);
 	end
-	figure
+	f = figure(1);
+	f.Units = 'centimeter';
+	f.PaperSize = [20,6];
+	f.PaperPositionMode = 'manual';
+	f.PaperPosition = [0 0 f.PaperSize];
+	
 	subplot(1,2,1)
 	plot(x,Cend(:,1))
+	xlabel('$x$')
+	ylabel('$C$')
 	
 	subplot(1,2,2)
 	plot(x,Cend(:,2))
+	xlabel('$x$')
+	ylabel('$C$')
+	
+	
+	print('vonNeumann1','-dpdf')
+	close(1)
 end
 
 if plotBoth == 1
@@ -299,13 +313,21 @@ if plotBoth == 1
 	ylabel('$\sum (|C-C_a|/N)$')
 
 	ax.XLim = [min(dts) max(dts)];
-	ax.XTick = dt0*[1/4 1/2 3/4 1];
-	ax.XTickLabel = {'$\Delta t/4$','$\Delta t/2$','$3\Delta t/4$','$\Delta t$'};
+	ax.XTick = dt0*[1/10 1];
+	ax.XTickLabel = {'$\Delta t_0/10$','$\Delta t_0$'};
+	ax.XScale = 'log';
+	ax.YScale = 'log';
 	
+% 	Fit = fit(Ns',errNs','a*x^-2');
 	subplot(1,2,2)
+	hold on
 	plot(Ns,errNs,'.')
+% 	plot(Fit)
 	ylabel('$\sum (|C-C_a|/N)$')
 	xlabel('$N$')
+	ax = gca;
+	ax.XScale = 'log';
+	ax.YScale = 'log';
 	
 	
 	print('diffErr','-dpdf')

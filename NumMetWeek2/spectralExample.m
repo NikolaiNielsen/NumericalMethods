@@ -25,14 +25,39 @@ res = deriv-anal;
 
 
 % plots
-figure
-hold on
-% plot(x,f)
-plot(x,deriv)
-plot(x,anal)
-hold off
-legend('numerical derivative','analytical derivative')
+% figure
+% hold on
+% % plot(x,f)
+% plot(x,deriv)
+% plot(x,anal)
+% hold off
+% legend('numerical derivative','analytical derivative')
+% 
+% figure
+% plot(x,res)
 
-figure
-plot(x,res)
+f = figure(1);
+f.Units = 'centimeter';
+f.PaperSize = [7 3];
+f.PaperPositionMode = 'manual';
+f.PaperPosition = [0 0 7 3];
+
+ax = gca;
+
+hold on
+plot(x(1:2:127),anal(1:2:127),'.')
+plot(x,deriv)
+hold off
+ax.XLim = 1.1*[-L/2 L/2];
+
+
+% 
+% ax = axes('Position',[0.75 0.525 0.2 0.3]);
+% plot(x,res)
+% ax.XLim = 1.1*[-L/2 L/2];
+% ax.YLim = [min(res) max(res)];
+% ax.XTick = [];
+
+print('spectralEx','-dpdf')
+close(1)
 
