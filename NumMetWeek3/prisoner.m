@@ -7,7 +7,7 @@ N = 60; % Size of board (NxN)
 b = 1.85; % Payoff for defecting
 pm = [1,0;b,0]; % Payoff matrix, pm(i,j) is i's payoff for playing j
 p = 0.1; % chance of starting as defector
-tend = 100;
+tend = 5;
 history = cell(1,tend); 
 % Let's start the board
 s = ones(N);
@@ -34,7 +34,14 @@ bc = [N,1:N,1];
 
 figure
 colormap(cmap)
-for t = 1:tend
+
+splot = zeros(N);
+splot(s == 1) = 1;
+splot(s == 2) = 3;
+imagesc(splot, [1,4])
+drawnow
+
+for t = 2:tend
 for i = 1:N
 for j = 1:N
 	pa = 0;
@@ -65,13 +72,15 @@ for j = 1:N
 end
 end
 
+figure
+colormap(cmap)
 history{t} = sn;
 splot = zeros(N);
 splot(s == 1 & sn == 1) = 1;
 splot(s == 2 & sn == 1) = 2;
 splot(s == 2 & sn == 2) = 3;
 splot(s == 1 & sn == 2) = 4;
-imagesc(splot)
+imagesc(splot, [1,4])
 drawnow
 
 s = sn;
