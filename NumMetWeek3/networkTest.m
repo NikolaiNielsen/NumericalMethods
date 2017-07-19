@@ -12,3 +12,4 @@ m = [0 1 1 1 0 0 0;...
 	 0 0 0 0 0 1 0];
 
 node = createnet(m,1);
+node2 = deletenode(node,2);
