@@ -8,6 +8,7 @@ function [node,l] = bfs(node)
 		if isempty(node(n).color) == 1
 			NodesToCheck = node(n).neighbour;
 			col = col+1;
+			node(n).color = col;
 		end
 	
 		while isempty(NodesToCheck) ~= 1
