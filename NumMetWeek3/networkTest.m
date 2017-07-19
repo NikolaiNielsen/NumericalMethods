@@ -11,7 +11,7 @@ m = [0 1 1 1 0 0 0;...
 	 0 0 0 0 0 0 1;...
 	 0 0 0 0 0 1 0];
 
-[node,l] = createnet(m,1);
+node = createnet(m,1);
 
 
 % g = graph(m);
