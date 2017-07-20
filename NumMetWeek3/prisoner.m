@@ -1,27 +1,30 @@
 clear all; close all; clc
 
+% Values of b to plot: 1.85, 1.65, 2.01, 2.55, 3, 1.8
+%
 
 % Initialize the variables needed
 
 N = 75; % Size of board (NxN)
-b = 1.85; % Payoff for defecting
+b = 2.55; % Payoff for defecting
 pm = [1,0;b,0]; % Payoff matrix, pm(i,j) is i's payoff for playing j
 p = 0.1; % chance of starting as defector
-tend = 10000;
-plotting = 0;
+tend = 100;
+plotting = 1;
 randStart = 0;
 pauseT = 0.2;
+CheckDup = 0;
 coord = ceil(N/2);
-influ = 1;
-influS = 2;
-iX = [coord+influS,...
-	  coord+influS,...
-	  coord-influS,...
-	  coord-influS];
-iY = [coord+influS,...
-	  coord-influS,...
-	  coord+influS,...
-	  coord-influS];
+influ = 0;
+influCoord = 10;
+iX = [coord+influCoord,...
+	  coord+influCoord,...
+	  coord-influCoord,...
+	  coord-influCoord];
+iY = [coord+influCoord,...
+	  coord-influCoord,...
+	  coord+influCoord,...
+	  coord-influCoord];
 iS = [1 1 1 1];
 
 history = cell(1,tend); 
@@ -82,7 +85,7 @@ for t = 2:tend
 	end
 	if influ == 1
 		for i = 1:length(iX)
-			payoff(iX(i),iY(i)) = 8*b+1;
+			payoff(iX(i),iY(i)) = 9*b+1;
 		end
 	end
 % for i = 1:N
@@ -137,14 +140,19 @@ s = sn;
 end
 
 if plotting == 1
+	
+	figure
 	splot = zeros(N);
 	splot(s == 1) = 1;
 	splot(s == 2) = 4;
-	splot(sub2ind([N,N],iX,iY)) = 5;
-	
-	figure
 	colormap(cmap)
-	imagesc(splot, [1,5])
+	if influ == 1
+		splot(sub2ind([N,N],iX,iY)) = 5;
+		
+	end
+	imagesc(splot, [1,max(splot(:))])
+
+	
 	axis equal
 	pause(pauseT)
 	
@@ -156,8 +164,10 @@ if plotting == 1
 		splot(s == 2 & sn == 1) = 2;
 		splot(s == 1 & sn == 2) = 3;
 		splot(s == 2 & sn == 2) = 4;
-		splot(sub2ind([N,N],iX,iY)) = 5;
-		imagesc(splot,[1,5])
+		if influ == 1
+			splot(sub2ind([N,N],iX,iY)) = 5;
+		end
+		imagesc(splot, [1,max(splot(:))])
 		axis equal
 		pause(pauseT)
 	end
@@ -170,12 +180,14 @@ colormap(cmap(1:4,:))
 area(0:tend-1,count')
 ax = gca;
 ax.YLim = [0 N^2];
+ax.XLim = [0 tend-1];
 
+if CheckDup == 1
 for i = 1:tend
-	
 	for j = i+1:tend
 		if isequal(history{i},history{j})
 			fprintf('hist(%d) and hist(%d) are equal!\n',i,j)
 		end
 	end
+end
 end
