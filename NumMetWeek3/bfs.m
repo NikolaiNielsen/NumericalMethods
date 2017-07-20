@@ -1,5 +1,13 @@
 function [node,l] = bfs(node)
-	
+    
+    % First we need to set all colors to 0
+    for n = 1:length(node)
+        if isfield(node(n),'color')
+            node(n).color = [];
+        end
+    end
+
+
 	col = 1;
 	node(1).color = col;
 	NodesToCheck = node(1).neighbour;
