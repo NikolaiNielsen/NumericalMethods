@@ -11,6 +11,6 @@ for i = 1:n-1
 	[node,ls{i}] = bfs(node);
 	lmax(i) = max(ls{i});
 	if verb == 1
-		fprintf('%d done. node %d removed\n',i,num)
+		fprintf('%d of %d done. node %d removed\n',i,n,num)
 	end
 end

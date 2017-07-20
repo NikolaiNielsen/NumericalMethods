@@ -3,13 +3,13 @@ close all
 clc
 
 Rand = 0;
-removeRand = 1;
+removeRand = 0;
 removeMost = 1;
 Jazz = 0;
 Email = 0;
 PGP = 1;
-metabolic = 1;
-verb = 0;
+metabolic = 0;
+verb = 1;
 
 % m = [0 1 1 1 0 0 0;...
 % 	 1 0 0 0 1 0 0;...
