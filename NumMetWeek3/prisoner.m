@@ -6,28 +6,42 @@ clear all; close all; clc
 % Initialize the variables needed
 
 N = 75; % Size of board (NxN)
-b = 2.55; % Payoff for defecting
+b = 1.85; % Payoff for defecting
 pm = [1,0;b,0]; % Payoff matrix, pm(i,j) is i's payoff for playing j
 p = 0.1; % chance of starting as defector
-tend = 100;
-plotting = 1;
+tend = 501;
+plotting = 0;
+prettyplot = 0;
+plotcount = 1;
 randStart = 0;
 pauseT = 0.2;
+
+
 CheckDup = 0;
+
+
 coord = ceil(N/2);
 influ = 0;
 influCoord = 10;
 iX = [coord+influCoord,...
 	  coord+influCoord,...
 	  coord-influCoord,...
-	  coord-influCoord];
+	  coord-influCoord,...
+      coord+influCoord,...
+	  coord,...
+	  coord-influCoord,...
+	  coord];
 iY = [coord+influCoord,...
 	  coord-influCoord,...
 	  coord+influCoord,...
-	  coord-influCoord];
-iS = [1 1 1 1];
+	  coord-influCoord,...
+	  coord,...
+	  coord-influCoord,...
+	  coord,...
+	  coord+influCoord];
+iS = [1 1 1 1 1 1 1 1];
 
-history = cell(1,tend); 
+history = zeros(N,N,tend);
 % Let's start the board
 s = ones(N);
 cmap = [0 0 1;...
@@ -59,7 +73,7 @@ if influ == 1
 			1 1 1];
 end
 
-history{1} = s;
+history(:,:,1) = s;
 % pa = zeros(N);
 count = zeros(4,tend);
 
@@ -75,7 +89,7 @@ count(4,1) = sum(sum(splot == 4));
 
 
 for t = 2:tend
-	sf = history{t-1};
+	sf = history(:,:,t-1);
 	payoff = zeros(N);
 	for i = -1:1
 	for j = -1:1
@@ -123,7 +137,7 @@ end
 % 
 % figure
 % colormap(cmap)
-history{t} = sn;
+history(:,:,t) = sn;
 splot = zeros(N);
 splot(sn == 1 & s == 1) = 1;
 splot(sn == 2 & s == 1) = 2;
@@ -140,7 +154,7 @@ s = sn;
 end
 
 if plotting == 1
-	
+	s = history(:,:,1);
 	figure
 	splot = zeros(N);
 	splot(s == 1) = 1;
@@ -157,8 +171,8 @@ if plotting == 1
 	pause(pauseT)
 	
 	for t = 2:tend
-		s = history{t-1};
-		sn = history{t};
+		s = history(:,:,t-1);
+		sn = history(:,:,t);
 		splot = zeros(N);
 		splot(s == 1 & sn == 1) = 1;
 		splot(s == 2 & sn == 1) = 2;
@@ -174,18 +188,87 @@ if plotting == 1
 	
 end
 
+if prettyplot == 1
+	numPics = 3;
+	numIter = 10;
+	s = history(:,:,1);
+	splot = zeros(N);
+	splot(s == 1) = 1;
+	splot(s == 2) = 4;
+	
+	f = figure;
+	f.Units = 'centimeter';
+	f.PaperSize = [20 20];
+	f.PaperPositionMode = 'manual';
+	f.PaperPosition = [0 0 f.PaperSize];
+	
+	subplot(numPics,numPics,1)
+	ax = gca;
+	colormap(cmap)
+	if influ == 1
+		splot(sub2ind([N,N],iX,iY)) = 5;
+		
+	end
+	imagesc(splot, [1,max(splot(:))])
+	axis equal
+	axis off
+	ax.XTick = [];
+	ax.YTick = [];
+	pause(pauseT)
+	
+	q = 2;
+	for t = 1:numIter:1+numIter*numPics^2-numPics
+		if t == 1
+			title(sprintf('$t=%d$',t))
+			continue
+		end
+		subplot(numPics,numPics,q)
+		ax = gca;
+		s = history(:,:,t-1);
+		sn = history(:,:,t);
+		splot = zeros(N);
+		splot(s == 1 & sn == 1) = 1;
+		splot(s == 2 & sn == 1) = 2;
+		splot(s == 1 & sn == 2) = 3;
+		splot(s == 2 & sn == 2) = 4;
+		if influ == 1
+			splot(sub2ind([N,N],iX,iY)) = 5;
+		end
+		imagesc(splot, [1,max(splot(:))])
+		axis equal
+		axis off
+		title(sprintf('$t=%d$',t))
+		ax.XTick = [];
+		ax.YTick = [];
+		q = q+1;
+	end
+	print('prisonersnapshot2','-dpdf')
+	
+end
+
+
 %%
-figure
+if plotcount == 1
+f = figure;
+f.Units = 'centimeter';
+f.PaperSize = [11 5];
+f.PaperPositionMode = 'manual';
+f.PaperPosition = [0 0 f.PaperSize];
 colormap(cmap(1:4,:))
 area(0:tend-1,count')
 ax = gca;
 ax.YLim = [0 N^2];
 ax.XLim = [0 tend-1];
+ylabel('count')
+xlabel('iteration number')
+print('prisonercount1','-dpdf')
+end
+
 
 if CheckDup == 1
 for i = 1:tend
 	for j = i+1:tend
-		if isequal(history{i},history{j})
+		if isequal(history(:,:,i),history(:,:,j))
 			fprintf('hist(%d) and hist(%d) are equal!\n',i,j)
 		end
 	end
