@@ -1,4 +1,4 @@
-function node = deletenode(node,num)
+function [node,a] = deletenode(node,a,num)
 
 % Delete the node "num" from the network.
 
@@ -13,3 +13,5 @@ for n = 1:length(node)
 	node(n).neighbour(node(n).neighbour > num) = node(n).neighbour(node(n).neighbour > num) - 1; 
 end
 node(num) = [];
+a(:,num) = [];
+a(num,:) = [];
