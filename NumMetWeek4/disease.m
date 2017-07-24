@@ -4,9 +4,10 @@ clc
 
 N = 100;
 T = 100;
-p = 0;
+p = 0.25;
 index = 1:N;
 tCured = 5;
+pImmune = 0.7;
 
 % nNeigh = 5;
 % pMat = (1+nNeigh/N)/2;
@@ -15,21 +16,24 @@ load('randommat')
 g = graph(a);
 
 % edges = table2array(g.Edges(:,1));
-figure
-h = plot(g);
 sick = false(1,N);
 sick(64) = 1;
 sick(16) = 1;
 immune = false(1,N);
-pImmune = 0.7;
 immune(rand(1,N) <= pImmune) = 1;
 immune(sick & immune) = 0;
 countdown = zeros(size(sick));
 countdown(sick) = tCured+1;
 
-highlight(h,index(sick),'NodeColor','r')
+
+% figure
+% h = plot(g);
+% highlight(h,index(sick),'NodeColor','r')
 % drawnow
-highlight(h,index(immune),'NodeColor','g')
+% highlight(h,index(immune),'NodeColor','g')
+
+sickCount = zeros(T,N);
+sickCount(1,:) = sick;
 
 for t = 2:T
 	m = index(sick); % Get index of sick individuals
@@ -55,15 +59,19 @@ for t = 2:T
 	
 	% make cured people healthy
 	sick(sick & ~countdown) = 0;
+	sickCount(t,:) = sick;
 	
 	% update the plot
-	highlight(h,index(sick),'NodeColor','r')
-	highlight(h,index(~sick & ~immune),'NodeColor','b')
-	title(sprintf('t=%d',t))
-	pause(0.5)
+% 	highlight(h,index(sick),'NodeColor','r')
+% 	highlight(h,index(~sick & ~immune),'NodeColor','b')
+% 	title(sprintf('t=%d',t))
+% 	pause(0.5)
 	
 	% Don't wanna go to far if unnecessary (God, I butchered that)
 	if sum(sick) == N
 		break
 	end
 end
+
+figure
+plot(sum(sickCount,2))
