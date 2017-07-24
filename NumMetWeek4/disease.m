@@ -4,7 +4,7 @@ clc
 
 N = 100;
 T = 100;
-p = 1;
+p = 0.3;
 index = 1:N;
 tCured = T;
 pImmune = 0.1;
