@@ -4,8 +4,9 @@ clc
 
 N = 100;
 T = 100;
-p = 0.2;
+p = 0;
 index = 1:N;
+tCured = 5;
 
 % nNeigh = 5;
 % pMat = (1+nNeigh/N)/2;
@@ -23,6 +24,8 @@ immune = false(1,N);
 pImmune = 0.7;
 immune(rand(1,N) <= pImmune) = 1;
 immune(sick & immune) = 0;
+countdown = zeros(size(sick));
+countdown(sick) = tCured+1;
 
 highlight(h,index(sick),'NodeColor','r')
 % drawnow
@@ -30,16 +33,37 @@ highlight(h,index(immune),'NodeColor','g')
 
 for t = 2:T
 	m = index(sick); % Get index of sick individuals
+	% Loop over the sick individuals
 	for i = 1:length(m)
-		neigh = index(logical(a(:,m(i)))); % neighbours
+		% Get the neighbours
+		neigh = index(logical(a(:,m(i))));
+		
+		% The raw index of newly sick people
 		newsick = neigh(rand(size(neigh)) <= p);
+		
+		% sanitize the newsick, to account for immunity
+		newsick = index(~immune(newsick));
+		
+		% initiate cure countdown for newly sick
+		countdown(newsick) = tCured+1;
+		
+		% Include the newly sick in the sick vector
 		sick(newsick) = 1;
-		sick(sick & immune) = 0;
 	end
+	% count down the countdown (for all that are sick and therefore not 0)
+	countdown(countdown ~= 0) = countdown(countdown ~= 0) - 1;
+	
+	% make cured people healthy
+	sick(sick & ~countdown) = 0;
+	
+	% update the plot
 	highlight(h,index(sick),'NodeColor','r')
+	highlight(h,index(~sick & ~immune),'NodeColor','b')
+	title(sprintf('t=%d',t))
 	pause(0.5)
+	
+	% Don't wanna go to far if unnecessary (God, I butchered that)
 	if sum(sick) == N
 		break
 	end
 end
-% highlight(h,index(sick),'NodeColor','r')
