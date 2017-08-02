@@ -2,17 +2,17 @@ clear all
 close all
 clc
 
-N = 100;
+N = 1000;
 T = 100;
 p = 0.3;
 index = 1:N;
 tCured = T;
-pImmune = 0.1;
+pImmune = 0.7;
 
-% nNeigh = 5;
-% pMat = (1+nNeigh/N)/2;
-% a = adjmatrix(N,pMat);
-load('randommat')
+nNeigh = 50;
+pMat = (1+nNeigh/N)/2;
+a = adjmatrix(N,pMat);
+% load('randommat')
 g = graph(a);
 
 % edges = table2array(g.Edges(:,1));
@@ -83,4 +83,4 @@ highlight(h,index(sick),'NodeColor','r')
 highlight(h,index(immune),'NodeColor','g')
 
 figure
-plot(sum(sickCount,2))
+plot(N-sum(immune)-sum(sickCount,2))
